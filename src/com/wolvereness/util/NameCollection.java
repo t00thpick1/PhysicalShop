@@ -90,11 +90,11 @@ public final class NameCollection {
 				nameSets.get(truncatedName).put(key, (String) pluginConfig.get(key));
 			}
 			for(final Map.Entry<String, Map<String, String>> nameSet : nameSets.entrySet()) {
-				char largest = '0';
+				char largest = '0'-1;
 				for(final Map.Entry<String, String> player : nameSet.getValue().entrySet()) {
 					largest = max(largest, player.getValue().charAt(14));
 				}
-				final char oldLargest = config.isSet(nameSet.getKey()) ? String.valueOf(config.get(nameSet.getKey())).charAt(0) : '0';
+				final char oldLargest = config.isSet(nameSet.getKey()) ? String.valueOf(config.get(nameSet.getKey())).charAt(0) : '0'-1;
 				if(max(largest,oldLargest) != oldLargest) {
 					config.set(nameSet.getKey(), String.valueOf(largest));
 					for(final Map.Entry<String, String> player : nameSet.getValue().entrySet()) {
