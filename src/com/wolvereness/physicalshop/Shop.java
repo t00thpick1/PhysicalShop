@@ -424,39 +424,40 @@ public class Shop {
 	private void triggerRedstone() {
 		if(!PhysicalShop.getPluginConfig().isRedstoneTriggered()) return;
 		final BlockFace face = ShopHelpers.getBack(sign);
-		if(
-			face != BlockFace.NORTH
-			&& face != BlockFace.SOUTH
-			&& face != BlockFace.WEST
-			&& face != BlockFace.EAST
-			) return;
+		switch(face) {
+			case NORTH:
+			case SOUTH:
+			case WEST:
+			case EAST:
+				break;
+			default:
+				return;
+		}
 		final Block signBlock = sign.getBlock().getRelative(face);
 		final Block activatedBlock = signBlock.getRelative(face);
 		final Material type = activatedBlock.getType();
-		if(
-			type == Material.LEVER
-			|| type == Material.STONE_BUTTON) {
-			if(ShopHelpers.getFace(activatedBlock.getData()) == face.getOppositeFace()) {
-				if(activatedBlock.getChunk() instanceof CraftChunk) {
-					final CraftChunk chunk = (CraftChunk) activatedBlock.getChunk();
-					net.minecraft.server.Block
-						.byId[chunk.getHandle().world.getTypeId(
-							activatedBlock.getX(),
-							activatedBlock.getY(),
-							activatedBlock.getZ()
-							)
-						].b(
-							chunk.getHandle().world,
-							activatedBlock.getX(),
-							activatedBlock.getY(),
-							activatedBlock.getZ(),
-							null
-							);
-					// This is Notch code for toggling something.
-					// This means I wont need to toggle the button back myself!
-				}
-			}
-		}
+
+		if(type != Material.LEVER && type != Material.STONE_BUTTON) return;
+		if(ShopHelpers.getFace(activatedBlock.getData()) != face.getOppositeFace()) return;
+		if(!(activatedBlock.getChunk() instanceof CraftChunk)) return;
+
+		final CraftChunk chunk = (CraftChunk) activatedBlock.getChunk();
+
+		net.minecraft.server.Block
+			.byId[chunk.getHandle().world.getTypeId(
+				activatedBlock.getX(),
+				activatedBlock.getY(),
+				activatedBlock.getZ()
+				)
+			].b(
+				chunk.getHandle().world,
+				activatedBlock.getX(),
+				activatedBlock.getY(),
+				activatedBlock.getZ(),
+				null
+				);
+		// This is Notch code for toggling something.
+		// This means I wont need to toggle the button back myself!
 
 	}
 
