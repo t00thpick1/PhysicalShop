@@ -1,6 +1,7 @@
 name: PhysicalShop
 main: com.wolvereness.physicalshop.PhysicalShop
 version: 8.4.1
+url: http://dev.bukkit.org/server-mods/physicalshop/
 commands:
    physicalshop:
       description: Reloads the configuration

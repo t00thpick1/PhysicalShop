@@ -1,6 +1,7 @@
 package com.wolvereness.physicalshop;
 
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -297,69 +298,41 @@ public class Shop {
 		return block.equals(signBlock.getRelative(signData.getAttachedFace()));
 	}
 	private void queryLogBlock(final Player player, final boolean selling) {
-		if (PhysicalShop.getLogBlock() == null)
-			return;
-		if((selling
-			?
-				(getSellRate().getPrice() * -1)
-			:
-				getBuyRate().getPrice()
-			) != 0) {
+		if (PhysicalShop.getLogBlock() == null) return;
+		final Location chestLocation = sign.getBlock().getRelative(BlockFace.DOWN).getLocation();
+		final short currencyDeposited = (short) (selling ? -getSellRate().getPrice() : getBuyRate().getPrice());
+		final short materialDeposited = (short) (selling ? getSellRate().getAmount() : -getBuyRate().getAmount());
+		if(currencyDeposited != 0) {
 			PhysicalShop
 				.getLogBlock()
 				.queueChestAccess(
 					player
 						.getName(),
-					sign
-						.getBlock()
-						.getRelative(BlockFace.DOWN)
-						.getLocation(),
+					chestLocation,
 					54,
 					(short) (
 						selling
-						?
-							getSellCurrency()
-						:
-							getBuyCurrency()
+							? getSellCurrency()
+							: getBuyCurrency()
 						)
 						.getMaterial()
 						.getId(),
-					(short) (
-						selling
-						?
-							(getSellRate().getPrice() * -1)
-						:
-							getBuyRate().getPrice()
-						),
+					currencyDeposited,
 					(byte) 0
 					);
 		}
-		if ((selling
-			?
-				(getSellRate().getAmount())
-			:
-				(getBuyRate().getAmount() * -1)
-			) != 0 ) {
+		if (materialDeposited != 0 ) {
 			PhysicalShop
 				.getLogBlock()
 				.queueChestAccess(
 					player
 						.getName(),
-					sign
-						.getBlock()
-						.getRelative(BlockFace.DOWN)
-						.getLocation(),
+					chestLocation,
 					54,
 					(short) getMaterial()
 						.getMaterial()
 						.getId(),
-					(short) (
-						selling
-						?
-							getSellRate().getAmount()
-						:
-							(getBuyRate().getAmount() * -1)
-						),
+					materialDeposited,
 					(byte) 0
 					);
 		}

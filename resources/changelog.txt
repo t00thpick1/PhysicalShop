@@ -1,3 +1,7 @@
+(1/21/12) - v8.4.2a - code revision
+- Added URL to plugin.yml
+- Made a bit of code for logblock look better
+- Added missing @Override
 (12/30/11) - v8.4.1 - bugfix
 - Fixed: NameCollection.yml clearing entries with only 1 player on server restart
 (12/28/11) - v8.4.0 - feature build

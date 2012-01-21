@@ -294,6 +294,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		logblockChecked = false;
 		super.reloadConfig();
 	}
+	@Override
 	public void verbose(final CommandSender sender) {
 		ShopMaterial.verbose(sender);
 	}
