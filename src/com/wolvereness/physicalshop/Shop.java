@@ -422,7 +422,7 @@ public class Shop {
 				activatedBlock.getY(),
 				activatedBlock.getZ()
 				)
-			].b(
+			].interact(
 				chunk.getHandle().world,
 				activatedBlock.getX(),
 				activatedBlock.getY(),

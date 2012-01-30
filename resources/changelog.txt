@@ -1,3 +1,6 @@
+(1/29/12) - v8.4.2 - new events
+- Fixed events to work with new annotations
+- Changed redstone hook for CraftBukkit (fixes redstone issue)
 (1/21/12) - v8.4.2a - code revision
 - Added URL to plugin.yml
 - Made a bit of code for logblock look better

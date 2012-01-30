@@ -1,8 +1,9 @@
 package com.wolvereness.physicalshop.listeners;
 
 import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
 import com.wolvereness.physicalshop.PhysicalShop;
 import com.wolvereness.physicalshop.ShopHelpers;
@@ -10,9 +11,13 @@ import com.wolvereness.physicalshop.ShopHelpers;
 /**
  *
  */
-public class PhysicalShopEntityListener extends EntityListener {
+public class PhysicalShopEntityListener implements Listener {
 
-	@Override
+	/**
+	 * Entity Explode event
+	 * @param e Event
+	 */
+	@EventHandler
 	public void onEntityExplode(final EntityExplodeEvent e) {
 		if (e.isCancelled()) return;
 

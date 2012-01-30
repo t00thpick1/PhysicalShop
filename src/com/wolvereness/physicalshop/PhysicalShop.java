@@ -9,8 +9,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -252,12 +250,9 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			PhysicalShop.permissions = new Permissions(this);
 			//Events
 			final PluginManager pm = getServer().getPluginManager();
-			pm.registerEvent(Type.BLOCK_BREAK, blockListener, Priority.Normal, this);
-			pm.registerEvent(Type.BLOCK_PLACE, blockListener, Priority.Normal, this);
-			pm.registerEvent(Type.BLOCK_BURN, blockListener, Priority.Normal, this);
-			pm.registerEvent(Type.ENTITY_EXPLODE, entityListener, Priority.Normal, this);
-			pm.registerEvent(Type.PLAYER_INTERACT, playerListener, Priority.Normal, this);
-			pm.registerEvent(Type.SIGN_CHANGE, blockListener, Priority.Normal, this);
+			pm.registerEvents(blockListener, this);
+			pm.registerEvents(entityListener, this);
+			pm.registerEvents(playerListener, this);
 			//Commands
 			commands.put(RELOAD_COMMAND, new Reload(this));
 			commands.put(VERSION_COMMAND, new Version(this,"%2$s version %1$s by Wolvereness, original by yli"));

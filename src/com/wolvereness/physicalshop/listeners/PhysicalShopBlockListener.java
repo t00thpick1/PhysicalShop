@@ -3,9 +3,10 @@ package com.wolvereness.physicalshop.listeners;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
@@ -20,9 +21,13 @@ import com.wolvereness.util.NameCollection.OutOfEntriesException;
 /**
  *
  */
-public class PhysicalShopBlockListener extends BlockListener {
+public class PhysicalShopBlockListener implements Listener {
 
-	@Override
+	/**
+	 * Block Break event
+	 * @param e Event
+	 */
+	@EventHandler
 	public void onBlockBreak(final BlockBreakEvent e) {
 		if (e.isCancelled() || ! PhysicalShop.getPluginConfig().isProtectBreak()) return;
 
@@ -32,7 +37,11 @@ public class PhysicalShopBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	/**
+	 * Block Burn event
+	 * @param e Event
+	 */
+	@EventHandler
 	public void onBlockBurn(final BlockBurnEvent e) {
 		if (e.isCancelled() || ! PhysicalShop.getPluginConfig().isProtectBreak()) return;
 
@@ -43,7 +52,11 @@ public class PhysicalShopBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	/**
+	 * Block Place event
+	 * @param e Event
+	 */
+	@EventHandler
 	public void onBlockPlace(final BlockPlaceEvent e) {
 		if (e.isCancelled()) return;
 
@@ -77,7 +90,11 @@ public class PhysicalShopBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	/**
+	 * Sign Change event
+	 * @param e Event
+	 */
+	@EventHandler
 	public void onSignChange(final SignChangeEvent e) {
 		if (e.isCancelled()) return;
 
