@@ -22,6 +22,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * @author Wolfe
  *
  */
+@Deprecated
 public abstract class Config {
 	private static final Logger logger = Logger.getLogger("Minecraft");
 	/**

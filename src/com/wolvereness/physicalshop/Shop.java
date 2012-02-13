@@ -1,6 +1,17 @@
 package com.wolvereness.physicalshop;
 
 
+import static com.wolvereness.physicalshop.config.ConfigOptions.TRIGGER_REDSTONE;
+import static com.wolvereness.physicalshop.config.Localized.Message.BUY;
+import static com.wolvereness.physicalshop.config.Localized.Message.BUY_RATE;
+import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_PLAYER_ITEMS;
+import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_PLAYER_MONEY;
+import static com.wolvereness.physicalshop.config.Localized.Message.NO_BUY;
+import static com.wolvereness.physicalshop.config.Localized.Message.NO_SELL;
+import static com.wolvereness.physicalshop.config.Localized.Message.PLAYER_INVENTORY_FULL;
+import static com.wolvereness.physicalshop.config.Localized.Message.SELL;
+import static com.wolvereness.physicalshop.config.Localized.Message.SELL_RATE;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,6 +21,7 @@ import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.exception.InvalidExchangeException;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
@@ -22,11 +34,12 @@ public class Shop {
 	/**
 	 * Figures out the current material the shop uses.
 	 * @param lines text from sign
+	 * @param config The MaterialConfig to use
 	 * @return an associated shop material, or null if failed to decypher
 	 */
-	public static ShopMaterial getMaterial(final String[] lines) {
+	public static ShopMaterial getMaterial(final String[] lines, final MaterialConfig config) {
 		try {
-			return ShopMaterial.getShopMaterial(lines[0]);
+			return config.getShopMaterial(lines[0]);
 		} catch (final InvalidMaterialException e) {
 			return null;
 		}
@@ -40,7 +53,6 @@ public class Shop {
 		return lines[3];
 	}
 	private static Rate getRate(final String amount, final String price) {
-		//final Matcher m = PhysicalShop.getConfig().getBuyPattern().matcher(sign.getLine(line));
 		try
 		{
 			return new Rate(Integer.parseInt(amount), Integer.parseInt(price));
@@ -48,7 +60,6 @@ public class Shop {
 			return null;
 		}
 	}
-
 	@SuppressWarnings("deprecation")
 	private static void updateInventory(final Player player) {
 		player.updateInventory();
@@ -63,66 +74,69 @@ public class Shop {
 	/**
 	 * Initializes Shop based off of sign.
 	 * @param sign the sign to consider
+	 * @param plugin The active PhysicalShop plugin
 	 * @throws InvalidSignException If sign does not match correct pattern.
 	 */
-	public Shop(final Sign sign) throws InvalidSignException {
-		this(sign.getLines());
+	public Shop(final Sign sign, final PhysicalShop plugin) throws InvalidSignException {
+		this(sign.getLines(), plugin);
 		this.sign = sign;
 	}
 	/**
 	 * Initializes a shop based off the lines from a sign. Used to check validity.
 	 * @param lines the text from the sign to consider
+	 * @param plugin The active PhysicalShop plugin
 	 * @throws InvalidSignException If the sign text does not match correct pattern.
 	 */
-	public Shop(final String[] lines) throws InvalidSignException {
+	public Shop(final String[] lines, final PhysicalShop plugin) throws InvalidSignException {
 		//String[] lines = sign.getLines();
-		material = Shop.getMaterial(lines);
+		material = Shop.getMaterial(lines, plugin.getMaterialConfig());
 
 		if (material == null) throw new InvalidSignException();
-		final String[] buySet = PhysicalShop.getPluginConfig().getBuyPattern().split(lines[1]);
-		final String[] sellSet = PhysicalShop.getPluginConfig().getSellPattern().split(lines[2]);
+
+		final String[] buySet = plugin.getPluginConfig().getBuyPattern().split(lines[1]);
+		final String[] sellSet = plugin.getPluginConfig().getSellPattern().split(lines[2]);
+
 		if (buySet.length != 4 && sellSet.length != 4) throw new InvalidSignException();
+
 		Rate buyRate = null, sellRate = null;
 		ShopMaterial buyCurrency = null, sellCurrency = null;
+
 		try
 		{
 			if(buySet.length == 4)
 			{
-				buyCurrency = ShopMaterial.getCurrency(buySet[3].charAt(0));
-				buyRate = getRate(buySet[1],buySet[2]);
+				buyCurrency = plugin.getMaterialConfig().getCurrency(buySet[3].charAt(0));
+				buyRate = getRate(buySet[1], buySet[2]);
 			}
 		} catch (final InvalidSignException e) {}
+
 		try
 		{
 			if(sellSet.length == 4)
 			{
-				sellCurrency = ShopMaterial.getCurrency(sellSet[3].charAt(0));
-				sellRate =  getRate(sellSet[1],sellSet[2]);
+				sellCurrency = plugin.getMaterialConfig().getCurrency(sellSet[3].charAt(0));
+				sellRate =  getRate(sellSet[1], sellSet[2]);
 			}
 		} catch (final InvalidSignException e) {}
+
 		if (sellCurrency == null && buyCurrency == null) throw new InvalidSignException();
+
 		this.buyCurrency = buyCurrency;
 		this.sellCurrency = sellCurrency;
 		this.buyRate = buyRate;
 		this.sellRate = sellRate;
-		//buyRate = Shop.getRate(sign, 1);
-		//sellRate = Shop.getRate(sign, 2);
-
-		//if ((buyRate == null) && (sellRate == null)) {
-		//	throw new InvalidSignException();
-		//}
 
 		if (((this.ownerName = lines[3]) == null) || ownerName.isEmpty()) throw new InvalidSignOwnerException();
 	}
-
 	/**
 	 * Invokes the buy routine for player.
-	 * @param player
-	 * @return
+	 * @param player player purchasing
+	 * @param plugin The active PhysicalShop plugin
+	 * @return true if success
 	 */
-	protected boolean buy(final Player player) {
+	protected boolean buy(final Player player, final PhysicalShop plugin) {
 		if (!canBuy()) {
-			PhysicalShop.sendMessage(player, "NO_BUY");
+			plugin.getLocale().sendMessage(player, NO_BUY);
 			return false;
 		}
 
@@ -136,47 +150,51 @@ public class Shop {
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
-				PhysicalShop.sendMessage(player, "PLAYER_INVENTORY_FULL");
+				plugin.getLocale().sendMessage(player, PLAYER_INVENTORY_FULL);
 				break;
 			case REMOVE:
-				PhysicalShop.sendMessage(player, "NOT_ENOUGH_PLAYER_MONEY", getBuyCurrency());
+				plugin.getLocale().sendMessage(player, NOT_ENOUGH_PLAYER_MONEY, getBuyCurrency().toString(plugin.getMaterialConfig()));
 				break;
 			}
 
 			return false;
 		}
 
-		PhysicalShop.sendMessage(player, "BUY", amount, material, price, getBuyCurrency());
-		updateInventory(player); //player.updateInventory();
+		plugin.getLocale().sendMessage(
+			player,
+			BUY,
+			amount,
+			material.toString(plugin.getMaterialConfig()),
+			price,
+			getBuyCurrency().toString(plugin.getMaterialConfig())
+			);
+		updateInventory(player);
 
-		queryLogBlock(player, false);
+		queryLogBlock(player, false, plugin);
 		return true;
 	}
-
 	/**
 	 * @return true if and only if this shop supports buying
 	 */
 	public boolean canBuy() {
 		return buyRate != null;
 	}
-
 	/**
 	 * This checks player for permission to destroy this shop
 	 * @param player player to consider
+	 * @param plugin The active PhysicalShop plugin
 	 * @return true if and only if player may destroy this shop
 	 */
-	public boolean canDestroy(final Player player) {
+	public boolean canDestroy(final Player player, final PhysicalShop plugin) {
 		return (player != null)
-				&& PhysicalShop.staticGetPermissionHandler().hasAdmin(player);
+				&& plugin.getPermissionHandler().hasAdmin(player);
 	}
-
 	/**
 	 * @return true if and only if this shop supports selling
 	 */
 	public boolean canSell() {
 		return sellRate != null;
 	}
-
 	/**
 	 * @return the currency associated with buying
 	 */
@@ -189,7 +207,6 @@ public class Shop {
 	public Rate getBuyRate() {
 		return buyRate;
 	}
-
 	/**
 	 * @return the material associated with this shop
 	 */
@@ -217,7 +234,6 @@ public class Shop {
 	public Rate getSellRate() {
 		return sellRate;
 	}
-
 	/**
 	 * Gets the current amount of shop's buying currency in the chest.
 	 *
@@ -226,7 +242,6 @@ public class Shop {
 	public int getShopBuyCapital() {
 		return Integer.MAX_VALUE;
 	}
-
 	/**
 	 * @return the amount of the shop's material currently stored
 	 */
@@ -242,7 +257,6 @@ public class Shop {
 	public int getShopSellCapital() {
 		return Integer.MAX_VALUE;
 	}
-
 	/**
 	 * @return the associated sign
 	 */
@@ -252,17 +266,18 @@ public class Shop {
 	/**
 	 * This method is called when a player right-clicks the sign. It considers the item in player's hand, and will act accordingly.
 	 * @param player the player to consider
+	 * @param plugin The active PhysicalShop plugin
 	 */
-	public void interact(final Player player) {
+	public void interact(final Player player, final PhysicalShop plugin) {
 		final ShopMaterial item = new ShopMaterial(player.getItemInHand());
 		try {
 		if (item.equals(getBuyCurrency())) {
-			if(buy(player)) {
-				triggerRedstone();
+			if(buy(player, plugin)) {
+				triggerRedstone(plugin);
 			}
 		} else if (item.equals(material)) {
-			if(sell(player)) {
-				triggerRedstone();
+			if(sell(player, plugin)) {
+				triggerRedstone(plugin);
 			}
 		}
 		//*
@@ -274,14 +289,6 @@ public class Shop {
 			throw t;
 		}
 		//*/
-	}
-	/**
-	 * An alias for {@link #canDestroy(Player)}, now deprecated because of its ambiguity
-	 */
-	@SuppressWarnings("javadoc")
-	@Deprecated
-	public final boolean isOwner(final Player player) {
-		return canDestroy(player);
 	}
 	/**
 	 * @param block block to consider
@@ -297,13 +304,13 @@ public class Shop {
 
 		return block.equals(signBlock.getRelative(signData.getAttachedFace()));
 	}
-	private void queryLogBlock(final Player player, final boolean selling) {
-		if (PhysicalShop.getLogBlock() == null) return;
+	private void queryLogBlock(final Player player, final boolean selling, final PhysicalShop plugin) {
+		if (plugin.getLogBlock() == null) return;
 		final Location chestLocation = sign.getBlock().getRelative(BlockFace.DOWN).getLocation();
 		final short currencyDeposited = (short) (selling ? -getSellRate().getPrice() : getBuyRate().getPrice());
 		final short materialDeposited = (short) (selling ? getSellRate().getAmount() : -getBuyRate().getAmount());
 		if(currencyDeposited != 0) {
-			PhysicalShop
+			plugin
 				.getLogBlock()
 				.queueChestAccess(
 					player
@@ -322,7 +329,7 @@ public class Shop {
 					);
 		}
 		if (materialDeposited != 0 ) {
-			PhysicalShop
+			plugin
 				.getLogBlock()
 				.queueChestAccess(
 					player
@@ -337,15 +344,15 @@ public class Shop {
 					);
 		}
 	}
-
 	/**
 	 * performs sell operation for player
 	 * @param player player to sell something to shop
+	 * @param plugin The active PhysicalShop plugin
 	 * @return true if successful
 	 */
-	protected boolean sell(final Player player) {
+	protected boolean sell(final Player player, final PhysicalShop plugin) {
 		if (!canSell()) {
-			PhysicalShop.sendMessage(player, "NO_SELL");
+			plugin.getLocale().sendMessage(player, NO_SELL);
 			return false;
 		}
 
@@ -360,11 +367,10 @@ public class Shop {
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
-				PhysicalShop.sendMessage(player, "PLAYER_INVENTORY_FULL");
+				plugin.getLocale().sendMessage(player, PLAYER_INVENTORY_FULL);
 				break;
 			case REMOVE:
-				PhysicalShop.sendMessage(player, "NOT_ENOUGH_PLAYER_ITEMS",
-						material);
+				plugin.getLocale().sendMessage(player, NOT_ENOUGH_PLAYER_ITEMS, material.toString(plugin.getMaterialConfig()));
 				break;
 			}
 
@@ -373,29 +379,48 @@ public class Shop {
 
 		updateInventory(player); // player.updateInventory();
 
-		PhysicalShop.sendMessage(player, "SELL", amount, material, price, getSellCurrency());
+		plugin.getLocale().sendMessage(
+			player,
+			SELL,
+			amount,
+			material,
+			price,
+			getSellCurrency()
+			);
 
-		queryLogBlock(player, true);
+		queryLogBlock(player, true, plugin);
 		return true;
 	}
-
 	/**
 	 * Messages player p the rates for current Shop.
 	 * @param p the player to message
+	 * @param plugin The active PhysicalShop plugin
 	 */
-	public void status(final Player p) {
+	public void status(final Player p, final PhysicalShop plugin) {
 		if (canBuy() && (getShopItems() >= buyRate.getAmount())) {
-			PhysicalShop.sendMessage(p, "BUY_RATE", buyRate.getAmount(),
-					material, buyRate.getPrice(), getBuyCurrency());
+			plugin.getLocale().sendMessage(
+				p,
+				BUY_RATE,
+				buyRate.getAmount(),
+				material.toString(plugin.getMaterialConfig()),
+				buyRate.getPrice(),
+				getBuyCurrency().toString(plugin.getMaterialConfig())
+				);
 		}
 
 		if (canSell() && (getShopSellCapital() >= sellRate.getPrice())) {
-			PhysicalShop.sendMessage(p, "SELL_RATE", sellRate.getAmount(),
-					material, sellRate.getPrice(), getSellCurrency());
+			plugin.getLocale().sendMessage(
+				p,
+				SELL_RATE,
+				sellRate.getAmount(),
+				material.toString(plugin.getMaterialConfig()),
+				sellRate.getPrice(),
+				getSellCurrency().toString(plugin.getMaterialConfig())
+				);
 		}
 	}
-	private void triggerRedstone() {
-		if(!PhysicalShop.getPluginConfig().isRedstoneTriggered()) return;
+	private void triggerRedstone(final PhysicalShop plugin) {
+		if(!plugin.getConfig().getBoolean(TRIGGER_REDSTONE)) return;
 		final BlockFace face = ShopHelpers.getBack(sign);
 		switch(face) {
 			case NORTH:
@@ -431,7 +456,5 @@ public class Shop {
 				);
 		// This is Notch code for toggling something.
 		// This means I wont need to toggle the button back myself!
-
 	}
-
 }

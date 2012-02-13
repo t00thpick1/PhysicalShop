@@ -1,8 +1,8 @@
 package com.wolvereness.physicalshop;
 
+import static com.wolvereness.physicalshop.config.ConfigOptions.LOG_BLOCK;
+
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -16,12 +16,9 @@ import org.yi.acru.bukkit.Lockette.Lockette;
 
 import com.griefcraft.lwc.LWCPlugin;
 import com.griefcraft.model.Protection;
-import com.wolvereness.physicalshop.config.LocaleConfig;
+import com.wolvereness.physicalshop.config.Localized;
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.config.StandardConfig;
-import com.wolvereness.physicalshop.listeners.PhysicalShopBlockListener;
-import com.wolvereness.physicalshop.listeners.PhysicalShopEntityListener;
-import com.wolvereness.physicalshop.listeners.PhysicalShopPlayerListener;
 import com.wolvereness.util.CommandHandler;
 import com.wolvereness.util.CommandHandler.Reload;
 import com.wolvereness.util.CommandHandler.Verbose;
@@ -37,17 +34,6 @@ import de.diddiz.LogBlock.LogBlock;
  */
 public class PhysicalShop extends JavaPlugin implements Verbosable {
 
-	private static StandardConfig configuration;
-	private static Consumer consumer = null;
-	private static LocaleConfig locale;
-	private static Lockette lockette = null;
-	private static boolean logblockChecked = false;
-	/**
-	 * logger that this plugin uses
-	 */
-	protected final static Logger logger = Logger.getLogger("Minecraft");
-	private static LWCPlugin lwc = null;
-	private static Permissions permissions;
 	/**
 	 * Command to reload PhysicalShop
 	 */
@@ -60,56 +46,47 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 * Command to get version
 	 */
 	public static final String VERSION_COMMAND = "VERSION";
+	private final HashMap<String,CommandHandler> commands = new HashMap<String,CommandHandler>();
+	private StandardConfig configuration;
+	private Consumer consumer = null;
+	private final PhysicalShopListener listener = new PhysicalShopListener(this);
+	private Localized locale;
+	private Lockette lockette = null;
+	private LWCPlugin lwc = null;
+	private MaterialConfig materialConfig;
+	private Permissions permissions;
+	/**
+	 * @return the locale
+	 */
+	public Localized getLocale() {
+		return locale;
+	}
 	/**
 	 * This function checks for LogBlock if not already found after plugin
 	 * enabled
 	 *
 	 * @return LogBlock consumer
 	 */
-	public static Consumer getLogBlock() {
-		try {
-			if (!logblockChecked) {
-				logblockChecked = true;
-				if (configuration.isLogBlocked()) {
-					final Plugin logblockPlugin = Bukkit.getServer().getPluginManager().getPlugin("LogBlock");
-					if (logblockPlugin == null) {
-						logWarning("Failed to find LogBlock");
-						return null;
-					}
-					consumer = ((LogBlock) logblockPlugin).getConsumer();
-					if (consumer == null) {
-						logWarning("Error getting LogBlock consumerco");
-					} else {
-						log("Sucessfully hooked into LogBlock");
-					}
-				} else {
-					log("Did not hook into LogBlock");
-				}
-			}
-			return consumer;
-		} catch (final ClassCastException e) {
-			logWarning("Error classtyping LogBlock!"); // This is a bit of a sanity check...
-			return null;
-		} catch (final NullPointerException e) {
-			logSevere("Logblock not found");
-			return null;
-		}
+	public Consumer getLogBlock() {
+		return consumer;
 	}
 	/**
-	 * Returns name of plugin.
-	 *
-	 * @return "PhysicalShop"
+	 * @return the MaterialConfig being used
 	 */
-	public static String getName() {
-		return "PhysicalShop";
+	public MaterialConfig getMaterialConfig() {
+		return materialConfig;
+	}
+	@Override
+	public Permissions getPermissionHandler() {
+		return permissions;
 	}
 	/**
 	 * Grabs the current StandardConfig being used.
 	 *
 	 * @return the configuration being used
 	 */
-	public static StandardConfig getPluginConfig() {
-		return PhysicalShop.configuration;
+	public StandardConfig getPluginConfig() {
+		return configuration;
 	}
 	/**
 	 * Method used to hook into lockette
@@ -117,35 +94,10 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 * @param player player to consider
 	 * @return true if and only if lockette is enabled and player owns said block
 	 */
-	public static boolean locketteCheck(final Block relative, final Player player) {
+	public boolean locketteCheck(final Block relative, final Player player) {
 		return lockette != null && player.getName().equals(Lockette.getProtectedOwner(relative));
 	}
-	/**
-	 * Sends txt to console, log level INFO
-	 *
-	 * @param txt text to send
-	 */
-	public static void log(final String txt) {
-		logger.log(Level.INFO, String.format("[%s] %s", getName(), txt));
-	}
 
-	/**
-	 * Sends txt to console, log level SERVERE
-	 *
-	 * @param txt text to send
-	 */
-	public static void logSevere(final String txt) {
-		logger.log(Level.SEVERE, String.format("[%s] %s", getName(), txt));
-	}
-
-	/**
-	 * Sends txt to console, log level WARNING
-	 *
-	 * @param txt text to send
-	 */
-	public static void logWarning(final String txt) {
-		logger.log(Level.WARNING, String.format("[%s] %s", getName(), txt));
-	}
 	/**
 	 * This function checks for LWC, thus letting player create shop over
 	 * existing chest
@@ -157,62 +109,13 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 * @return Returns true if not protect-existing-chest or if LWC enabled and protection exists and
 	 *         player is admin of chest
 	 */
-	public static boolean lwcCheck(final Block block, final Player player) {
+	public boolean lwcCheck(final Block block, final Player player) {
 		if (lwc == null) return false;
-		//LWC lwc = ((LWCPlugin) lwcPlugin).getLWC();
 		final Protection protection = lwc.getLWC().findProtection(block);
 		if (protection == null)	return false; // no protection here
 		return lwc.getLWC().canAdminProtection(player, protection);
 	}
 
-	/**
-	 * Sends message to player cs
-	 *
-	 * @param cs player to consider
-	 * @param message message to send
-	 */
-	public static void sendMessage(final CommandSender cs, final String message) {
-		try {
-			cs.sendMessage(locale.getPhrase(message));
-		} catch (final NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (final NullPointerException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Sends messsage, formatted from args, to player cs
-	 *
-	 * @param cs player to consider
-	 * @param message message name to send
-	 * @param args stuff to format into message
-	 */
-	public static void sendMessage(final CommandSender cs, final String message, final Object... args)
-	{
-		try {
-			cs.sendMessage(String.format(locale.getPhrase(message), args));
-		} catch (final NoSuchFieldException e) {
-			e.printStackTrace();
-		} catch (final NullPointerException e) {
-			e.printStackTrace();
-		}
-	}
-	/**
-	 * Returns previously obtained permission set.
-	 * @return the permission handler being used
-	 */
-	public static Permissions staticGetPermissionHandler() {
-		return PhysicalShop.permissions;
-	}
-	private final PhysicalShopBlockListener blockListener = new PhysicalShopBlockListener();
-	private final HashMap<String,CommandHandler> commands = new HashMap<String,CommandHandler>();
-	private final PhysicalShopEntityListener entityListener = new PhysicalShopEntityListener();
-	private final PhysicalShopPlayerListener playerListener = new PhysicalShopPlayerListener();
-	@Override
-	public Permissions getPermissionHandler() {
-		return PhysicalShop.permissions;
-	}
 	/**
 	 * This will capture the only command, /physicalshop. It will send version information to the sender, and it checks permissions and reloads config if there is proper permission to.
 	 * @param sender Player / Console sending command
@@ -225,10 +128,9 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
 		final String subCommand = args.length == 0 ? VERSION_COMMAND : args[0].toUpperCase();
 		if(commands.containsKey(subCommand))
-			return commands.get(subCommand).onCommand(sender, args, staticGetPermissionHandler());
+			return commands.get(subCommand).onCommand(sender, args, getPermissionHandler());
 		return false;
 	}
-
 	/**
 	 * Does nothing as of yet.
 	 */
@@ -238,7 +140,6 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			NameCollection.unregisterPlugin(this);
 		}
 	}
-
 	/**
 	 * Initialization routine
 	 */
@@ -247,12 +148,10 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		try
 		{
 			reloadConfig();
-			PhysicalShop.permissions = new Permissions(this);
+			permissions = new Permissions(this);
 			//Events
 			final PluginManager pm = getServer().getPluginManager();
-			pm.registerEvents(blockListener, this);
-			pm.registerEvents(entityListener, this);
-			pm.registerEvents(playerListener, this);
+			pm.registerEvents(listener, this);
 			//Commands
 			commands.put(RELOAD_COMMAND, new Reload(this));
 			commands.put(VERSION_COMMAND, new Version(this,"%2$s version %1$s by Wolvereness, original by yli"));
@@ -266,7 +165,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			if(temp != null && temp instanceof Lockette) {
 				lockette = (Lockette) temp;
 			}
-			log(String.format("version %s enabled", getDescription().getVersion()));
+			getLogger().info(getDescription().getFullName() + " enabled.");
 		} catch (final RuntimeException t) {
 			t.printStackTrace();
 			throw t;
@@ -277,21 +176,38 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	}
 	@Override
 	public void reloadConfig() {
+		super.reloadConfig();
+		getConfig().options().copyDefaults(true);
 		if(configuration != null && configuration.isExtendedNames()) {
 			NameCollection.unregisterPlugin(this);
 		}
-		configuration = new StandardConfig(this.getClassLoader());
+		configuration = new StandardConfig(this);
 		if(configuration.isExtendedNames()) {
 			NameCollection.registerPlugin(this);
 		}
-		locale = new LocaleConfig(configuration.getLanguage(), this.getClassLoader());
-		new MaterialConfig();
-		logblockChecked = false;
-		super.reloadConfig();
+		locale = new Localized(this);
+		materialConfig = new MaterialConfig(this);
+		if (getConfig().getBoolean(LOG_BLOCK)) {
+			final Plugin logblockPlugin = Bukkit.getServer().getPluginManager().getPlugin("LogBlock");
+			if (logblockPlugin == null || !(logblockPlugin instanceof LogBlock)) {
+				getLogger().warning("Failed to find LogBlock");
+				consumer = null;
+			} else {
+				consumer = ((LogBlock) logblockPlugin).getConsumer();
+				if (consumer == null) {
+					getLogger().warning("Error getting LogBlock consumer");
+				} else {
+					getLogger().info("Sucessfully hooked into LogBlock");
+				}
+			}
+		} else {
+			consumer = null;
+			getLogger().info("Did not hook into LogBlock");
+		}
 	}
 	@Override
 	public void verbose(final CommandSender sender) {
-		ShopMaterial.verbose(sender);
+		materialConfig.verbose(sender);
 	}
 
 }

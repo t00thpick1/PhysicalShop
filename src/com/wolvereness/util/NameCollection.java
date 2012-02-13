@@ -36,9 +36,6 @@ public final class NameCollection {
 	}
 	private static YamlConfiguration config = new YamlConfiguration();
 	private static HashMap<String, File> plugins = new HashMap<String, File>();
-	static {
-		config.options().copyDefaults(true);
-	}
 	private static Configuration getConfig(final File file) {
 		if(file.exists())
 			return YamlConfiguration.loadConfiguration(file);
@@ -141,7 +138,7 @@ public final class NameCollection {
 	 */
 	public static void registerPlugin(final Plugin plugin) {
 		final String pluginName = plugin.getDescription().getName();
-		final File pluginFile = new File("plugins" + File.separator + pluginName + File.separator + "NameCollection.yml");
+		final File pluginFile = new File(plugin.getDataFolder(), "NameCollection.yml");
 		plugins.put(pluginName, pluginFile);
 		load(pluginFile);
 		saveAll();

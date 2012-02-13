@@ -1,5 +1,13 @@
 package com.wolvereness.physicalshop;
 
+import static com.wolvereness.physicalshop.config.Localized.Message.CHEST_INVENTORY_FULL;
+import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_SHOP_ITEMS;
+import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_SHOP_MONEY;
+import static com.wolvereness.physicalshop.config.Localized.Message.NO_BUY;
+import static com.wolvereness.physicalshop.config.Localized.Message.NO_SELL;
+import static com.wolvereness.physicalshop.config.Localized.Message.STATUS;
+import static com.wolvereness.physicalshop.config.Localized.Message.STATUS_ONE_CURRENCY;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -15,16 +23,15 @@ import com.wolvereness.util.NameCollection;
  *
  */
 public class ChestShop extends Shop {
-
 	private final Chest chest;
-
 	/**
 	 * Creates a Shop with a chest
 	 * @param sign sign to consider
+	 * @param plugin The active PhysicalShop plugin
 	 * @throws InvalidSignException thrown if sign is not over a chest or sign is invalid
 	 */
-	public ChestShop(final Sign sign) throws InvalidSignException {
-		super(sign);
+	public ChestShop(final Sign sign, final PhysicalShop plugin) throws InvalidSignException {
+		super(sign, plugin);
 
 		final Block chestBlock = sign.getBlock().getRelative(BlockFace.DOWN);
 
@@ -32,11 +39,10 @@ public class ChestShop extends Shop {
 
 		chest = (Chest) chestBlock.getState();
 	}
-
 	@Override
-	protected boolean buy(final Player player) {
+	protected boolean buy(final Player player, final PhysicalShop plugin) {
 		if (!canBuy()) {
-			PhysicalShop.sendMessage(player, "NO_BUY");
+			plugin.getLocale().sendMessage(player, NO_BUY);
 			return false;
 		}
 		final ShopItemStack[] items = InventoryHelpers.getItems(chest
@@ -47,31 +53,33 @@ public class ChestShop extends Shop {
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
-				PhysicalShop.sendMessage(player, "CHEST_INVENTORY_FULL");
+				plugin.getLocale().sendMessage(player, CHEST_INVENTORY_FULL);
 				break;
 			case REMOVE:
-				PhysicalShop.sendMessage(player, "NOT_ENOUGH_SHOP_ITEMS",
-						getMaterial());
+				plugin.getLocale().sendMessage(
+					player,
+					NOT_ENOUGH_SHOP_ITEMS,
+					getMaterial().toString(plugin.getMaterialConfig())
+					);
 				break;
 			}
 
 			return false;
 		}
 
-		if (!super.buy(player)) {
+		if (!super.buy(player, plugin)) {
 			InventoryHelpers.setItems(chest.getInventory(), items);
 			return false;
 		}
 		return true;
 	}
-
 	@Override
-	public boolean canDestroy(final Player player) {
+	public boolean canDestroy(final Player player, final PhysicalShop plugin) {
 		return (player != null)
 				&& (
-					PhysicalShop.staticGetPermissionHandler().hasAdmin(player)
+					plugin.getPermissionHandler().hasAdmin(player)
 					|| (
-						PhysicalShop.getPluginConfig().isExtendedNames()
+						plugin.getPluginConfig().isExtendedNames()
 						?
 							NameCollection.matches(getOwnerName(), player.getName())
 						:
@@ -79,7 +87,6 @@ public class ChestShop extends Shop {
 						)
 					);
 	}
-
 	@Override
 	/**
 	 * Gets the current amount of shop's currency in the chest.
@@ -88,12 +95,10 @@ public class ChestShop extends Shop {
 	public int getShopBuyCapital() {
 		return InventoryHelpers.getCount(chest.getInventory(), getBuyCurrency());
 	}
-
 	@Override
 	public int getShopItems() {
 		return InventoryHelpers.getCount(chest.getInventory(), getMaterial());
 	}
-
 	@Override
 	/**
 	 * Gets the current amount of shop's currency in the chest.
@@ -102,7 +107,6 @@ public class ChestShop extends Shop {
 	public int getShopSellCapital() {
 		return InventoryHelpers.getCount(chest.getInventory(), getSellCurrency());
 	}
-
 	@Override
 	public boolean isShopBlock(final Block block) {
 		if (super.isShopBlock(block)) return true;
@@ -113,11 +117,10 @@ public class ChestShop extends Shop {
 
 		return false;
 	}
-
 	@Override
-	public boolean sell(final Player player) {
+	public boolean sell(final Player player, final PhysicalShop plugin) {
 		if (!canSell()) {
-			PhysicalShop.sendMessage(player, "NO_SELL");
+			plugin.getLocale().sendMessage(player, NO_SELL);
 			return false;
 		}
 		final ShopItemStack[] items = InventoryHelpers.getItems(chest
@@ -129,37 +132,66 @@ public class ChestShop extends Shop {
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
-				PhysicalShop.sendMessage(player, "CHEST_INVENTORY_FULL");
+				plugin.getLocale().sendMessage(player, CHEST_INVENTORY_FULL);
 				break;
 			case REMOVE:
-				PhysicalShop.sendMessage(player, "NOT_ENOUGH_SHOP_MONEY", getSellCurrency());
+				plugin.getLocale().sendMessage(player, NOT_ENOUGH_SHOP_MONEY, getSellCurrency().toString(plugin.getMaterialConfig()));
 				break;
 			}
 
 			return false;
 		}
 
-		if (!super.sell(player)) {
+		if (!super.sell(player, plugin)) {
 			InventoryHelpers.setItems(chest.getInventory(), items);
 			return false;
 		}
 		return true;
 	}
-
 	@Override
-	public void status(final Player p) {
+	public void status(final Player p, final PhysicalShop plugin) {
 		if (getBuyCurrency() == null)
 		{
-			PhysicalShop.sendMessage(p, "STATUS_ONE_CURRENCY", getShopSellCapital(), getSellCurrency(), getShopItems(), getMaterial());
+			plugin.getLocale().sendMessage(
+				p,
+				STATUS_ONE_CURRENCY,
+				getShopSellCapital(),
+				getSellCurrency().toString(plugin.getMaterialConfig()),
+				getShopItems(),
+				getMaterial().toString(plugin.getMaterialConfig())
+				);
 		} else if (getSellCurrency() == null) {
-			PhysicalShop.sendMessage(p, "STATUS_ONE_CURRENCY", getShopBuyCapital(), getBuyCurrency(), getShopItems(), getMaterial());
+			plugin.getLocale().sendMessage(
+				p,
+				STATUS_ONE_CURRENCY,
+				getShopBuyCapital(),
+				getBuyCurrency().toString(plugin.getMaterialConfig()),
+				getShopItems(),
+				getMaterial().toString(plugin.getMaterialConfig())
+				);
 		} else if (getSellCurrency().equals(getBuyCurrency())) {
-			PhysicalShop.sendMessage(p, "STATUS_ONE_CURRENCY", getShopBuyCapital(), getBuyCurrency(), getShopItems(), getMaterial());
+			plugin.getLocale().sendMessage(
+				p,
+				STATUS_ONE_CURRENCY,
+				getShopBuyCapital(),
+				getBuyCurrency().toString(plugin.getMaterialConfig()),
+				getShopItems(),
+				getMaterial().toString(plugin.getMaterialConfig())
+				);
 		} else {
-			PhysicalShop.sendMessage(p, "STATUS", getShopBuyCapital(), getBuyCurrency(), getShopSellCapital(), getSellCurrency(), getShopItems(), getMaterial());
+			plugin.getLocale().sendMessage(
+				p,
+				STATUS,
+				getShopBuyCapital(),
+				getBuyCurrency().toString(plugin.getMaterialConfig()),
+				getShopSellCapital(),
+				getSellCurrency().toString(plugin.getMaterialConfig()),
+				getShopItems(),
+				getMaterial().toString(plugin.getMaterialConfig())
+				);
 		}
 
-		super.status(p);
+		super.status(p, plugin);
 	}
 
 }

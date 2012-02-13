@@ -1,3 +1,7 @@
+(2/7/12) - v9.0.0 - major refactor
+- Changed default sign format to be much more lenient 
+- Changed API to be a bit more sane
+- Added color support in messages
 (1/29/12) - v8.4.2 - new events
 - Fixed events to work with new annotations
 - Changed redstone hook for CraftBukkit (fixes redstone issue)

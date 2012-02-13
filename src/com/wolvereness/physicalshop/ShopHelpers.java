@@ -1,5 +1,8 @@
 package com.wolvereness.physicalshop;
 
+import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
+import static com.wolvereness.physicalshop.config.Localized.Message.CANT_DESTROY;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,9 +102,10 @@ public class ShopHelpers {
 	/**
 	 * Attempts to create a new shop object based on this block
 	 * @param block the block to consider
+	 * @param plugin The active PhysicalShop plugin
 	 * @return null if block is not sign or said sign is invalid, otherwise a new associated {@link Shop} for this block
 	 */
-	public static Shop getShop(final Block block) {
+	public static Shop getShop(final Block block, final PhysicalShop plugin) {
 		if (block == null) return null;
 
 		if ((block.getType() != Material.SIGN_POST)
@@ -114,17 +118,14 @@ public class ShopHelpers {
 		final String ownerName = Shop.getOwnerName(sign.getLines());
 
 		try {
-			if (block.getRelative(BlockFace.DOWN).getType() == Material.CHEST)
-				return new ChestShop(sign);
-			else if (ownerName.equalsIgnoreCase(PhysicalShop.getPluginConfig()
-					.getServerOwner())) return new Shop(sign);
-			else
-				return null;
+			if (block.getRelative(BlockFace.DOWN).getType() == Material.CHEST) return new ChestShop(sign, plugin);
+			else if (ownerName.equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) return new Shop(sign, plugin);
+			else return null;
 		} catch (final InvalidSignException e) {
 			return null;
 		}
 	}
-	static List<Shop> getShops(final Block block) {
+	private static List<Shop> getShops(final Block block, final PhysicalShop plugin) {
 		final ArrayList<Shop> shops = new ArrayList<Shop>();
 
 		final Block[] blocks = new Block[] { block,
@@ -136,7 +137,7 @@ public class ShopHelpers {
 				block.getRelative(BlockFace.WEST), };
 
 		for (final Block b : blocks) {
-			final Shop shop = ShopHelpers.getShop(b);
+			final Shop shop = ShopHelpers.getShop(b, plugin);
 
 			if ((shop != null) && shop.isShopBlock(block)) {
 				shops.add(shop);
@@ -150,15 +151,15 @@ public class ShopHelpers {
 	 * Checks around block for shops, and checks it against player for ownership
 	 * @param block The block being destroyed
 	 * @param player The player destroying block, can be null (as in, no destroyer)
+	 * @param plugin The active PhysicalShop plugin
 	 * @return false if there are shops and player is null or not admin and not owner
 	 */
-	public static boolean isBlockDestroyable(final Block block,
-			final Player player) {
-		final List<Shop> shops = ShopHelpers.getShops(block);
+	public static boolean isBlockDestroyable(final Block block, final Player player, final PhysicalShop plugin) {
+		final List<Shop> shops = ShopHelpers.getShops(block, plugin);
 		if(player == null && !shops.isEmpty()) return false;
 		for (final Shop shop : shops) {
-			if (!shop.canDestroy(player)) {
-				PhysicalShop.sendMessage(player, "CANT_DESTROY");
+			if (!shop.canDestroy(player, plugin)) {
+				plugin.getLocale().sendMessage(player, CANT_DESTROY);
 				shop.getSign().update();
 				return false;
 			}
