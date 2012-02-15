@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wolvereness.physicalshop</groupId>
     <artifactId>PhysicalShop</artifactId>
-    <version>9.0.1</version>
+    <version>9.0.2</version>
     <name>PhysicalShop</name>
     <repositories>
         <repository>
@@ -12,6 +12,7 @@
     </repositories>
     <build>
 		<defaultGoal>clean install</defaultGoal>
+		<finalName>${artifactId}-v${version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

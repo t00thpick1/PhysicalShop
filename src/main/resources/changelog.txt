@@ -1,3 +1,6 @@
+(2/15/12) - v9.0.2 - fix from AgentME
+- Fixed: Enderman can no longer break shops if shop protection is active
+- Fixed: Pistons can no longer break shops if shop protection is active
 (2/14/12) - v9.0.1 - fix default config
 - Fixed: Now saves a default config
 - Changed: Will not load if exception or error is thrown in onEnable()

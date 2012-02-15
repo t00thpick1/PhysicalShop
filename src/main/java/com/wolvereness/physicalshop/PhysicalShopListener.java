@@ -18,7 +18,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.wolvereness.physicalshop.exception.InvalidSignException;
@@ -103,6 +106,40 @@ public class PhysicalShopListener implements Listener {
 		}
 	}
 	/**
+	 * Block the BlockPistonExtendEvent if it will move the block
+	 * a store sign is on.
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPistonExtend(final BlockPistonExtendEvent e) {
+		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
+
+		for (final Block block : e.getBlocks()) {
+			if (!ShopHelpers.isBlockDestroyable(block, null, plugin)) {
+				e.setCancelled(true);
+			}
+		}
+	}
+	/**
+	 * Block the BlockPistonRetractEvent if it will move the block
+	 * a store sign is on.
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPistonRetract(final BlockPistonRetractEvent e) {
+		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
+
+		// We only care about sticky pistons retracting.
+		if (!e.isSticky()) return;
+
+		BlockFace direction = e.getDirection();
+		Block pulledBlock = e.getBlock().getRelative(direction, 2);
+
+		if (!ShopHelpers.isBlockDestroyable(pulledBlock, null, plugin)) {
+			e.setCancelled(true);
+		}
+	}
+	/**
 	 * Entity Explode event
 	 * @param e Event
 	 */
@@ -117,6 +154,19 @@ public class PhysicalShopListener implements Listener {
 				e.setCancelled(true);
 				return;
 			}
+		}
+	}
+	/**
+	 * Stop EntityChangeBlockEvents from affecting stores.
+	 * Prevents Endermen from breaking stores, etc.
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onEntityChangeBlock(final EntityChangeBlockEvent e) {
+		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
+
+		if (!ShopHelpers.isBlockDestroyable(e.getBlock(), null, plugin)) {
+			e.setCancelled(true);
 		}
 	}
 	/**
