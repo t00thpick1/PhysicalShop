@@ -295,7 +295,7 @@ public class PhysicalShopListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		if(e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
+		if(!e.isCancelled() && e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
 			try {
 				plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, new Shop(e.getLines(), plugin)));
 			} catch (final InvalidSignException ex) {
