@@ -100,7 +100,6 @@ public interface CommandHandler {
 		 * @return true if valid command, false otherwise
 		 */
 		public abstract boolean go(final CommandSender sender);
-		@Override
 		public boolean onCommand(final CommandSender sender, final String[] args, final PermissionHandler permissionHandler) {
 			return sender instanceof Player ? (permissionMessage(sender,permissionHandler.checkPerm((Player) sender, PERMISSION)) || go(sender)) : go(sender);
 		}
@@ -114,7 +113,7 @@ public interface CommandHandler {
 		 * @author Wolfe
 		 * Used to indicate something able to print verbose
 		 */
-		public interface Verbosable extends Plugin{
+		public interface Verbosable extends Plugin {
 			/**
 			 * Prints out any useful information
 			 * @param sender person to send verbose to
@@ -159,7 +158,6 @@ public interface CommandHandler {
 		public Version(final Plugin plugin, final String formatBase) {
 			MESSAGE = String.format(formatBase,plugin.getDescription().getVersion(),plugin.getDescription().getName());
 		}
-		@Override
 		public boolean onCommand(final CommandSender sender, final String[] args,final PermissionHandler permissionHandler) {
 			sender.sendMessage(MESSAGE);
 			return true;

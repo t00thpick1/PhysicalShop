@@ -126,7 +126,7 @@ public class Shop {
 		this.buyRate = buyRate;
 		this.sellRate = sellRate;
 
-		if (((this.ownerName = lines[3]) == null) || ownerName.isEmpty()) throw new InvalidSignOwnerException();
+		if (((this.ownerName = lines[3]) == null) || ownerName.length() == 0) throw new InvalidSignOwnerException();
 	}
 	/**
 	 * Invokes the buy routine for player.

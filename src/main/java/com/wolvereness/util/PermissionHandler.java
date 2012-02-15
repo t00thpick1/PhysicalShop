@@ -42,7 +42,7 @@ public class PermissionHandler {
 	 * @return true if the specified player has specified permission
 	 */
 	public boolean checkPerm(final Player otherPlayer, final String perm) {
-		if(otherPlayer == null || perm == null || perm.isEmpty()) throw new IllegalArgumentException();
+		if(otherPlayer == null || perm == null || perm.length() == 0) throw new IllegalArgumentException();
 		return permissions == null ? otherPlayer.hasPermission(perm) : permissions.has(otherPlayer, perm);
 	}
 	/**

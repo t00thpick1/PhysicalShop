@@ -76,7 +76,6 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public MaterialConfig getMaterialConfig() {
 		return materialConfig;
 	}
-	@Override
 	public Permissions getPermissionHandler() {
 		return permissions;
 	}
@@ -205,7 +204,6 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			getLogger().info("Did not hook into LogBlock");
 		}
 	}
-	@Override
 	public void verbose(final CommandSender sender) {
 		materialConfig.verbose(sender);
 	}
