@@ -1,3 +1,6 @@
+(2/14/12) - v9.0.1 - fix default config
+- Fixed: Now saves a default config
+- Changed: Will not load if exception or error is thrown in onEnable()
 (2/7/12) - v9.0.0 - major refactor
 - Changed default sign format to be much more lenient 
 - Changed API to be a bit more sane

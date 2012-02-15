@@ -1,6 +1,6 @@
 name: PhysicalShop
 main: com.wolvereness.physicalshop.PhysicalShop
-version: 9.0.0
+version: 9.0.1
 soft-depend: [LogBlock, LWC, Lockette]
 url: http://dev.bukkit.org/server-mods/physicalshop/
 commands:

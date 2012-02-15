@@ -3,6 +3,7 @@ package com.wolvereness.physicalshop;
 import static com.wolvereness.physicalshop.config.ConfigOptions.LOG_BLOCK;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -146,7 +147,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public void onEnable() {
 		try
 		{
-			reloadConfig();
+			saveConfig();
 			permissions = new Permissions(this);
 			//Events
 			final PluginManager pm = getServer().getPluginManager();
@@ -165,9 +166,9 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 				lockette = (Lockette) temp;
 			}
 			getLogger().info(getDescription().getFullName() + " enabled.");
-		} catch (final RuntimeException t) {
-			t.printStackTrace();
-			throw t;
+		} catch (final Throwable t) {
+			getLogger().log(Level.SEVERE, getDescription().getFullName() + " failed to enable", t);
+			getServer().getPluginManager().disablePlugin(this);
 		}
 	}
 	@Override
