@@ -11,17 +11,22 @@ import static com.wolvereness.physicalshop.config.Localized.Message.EXISTING_CHE
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.BlockFadeEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import com.wolvereness.physicalshop.exception.InvalidSignException;
@@ -48,26 +53,20 @@ public class PhysicalShopListener implements Listener {
 	 */
 	@EventHandler
 	public void onBlockBreak(final BlockBreakEvent e) {
-		if (e.isCancelled() || ! plugin.getPluginConfig().isProtectBreak()) return;
-
-		if (!ShopHelpers.isBlockDestroyable(e.getBlock(), e.getPlayer(), plugin)) {
-			//PhysicalShop.sendMessage(e.getPlayer(),"CANT_DESTROY");
-			e.setCancelled(true);
-		}
+		onBlockDestroyed(e, e.getPlayer(), e.getBlock());
 	}
 	/**
-	 * Block Burn event
+	 * Central place for checking for an event cancellation
 	 * @param e Event
+	 * @param p Player
+	 * @param b Block
+	 * @return true if the caller should cease execution
 	 */
-	@EventHandler
-	public void onBlockBurn(final BlockBurnEvent e) {
-		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
-
-		// Messaging.save(e.getPlayer());
-
-		if (!ShopHelpers.isBlockDestroyable(e.getBlock(), null, plugin)) {
-			e.setCancelled(true);
-		}
+	public boolean onBlockDestroyed(final Cancellable e, final Player p, final Block b) {
+		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return true;
+		if (ShopHelpers.isBlockDestroyable(b, p, plugin)) return false;
+		e.setCancelled(true);
+		return true;
 	}
 	/**
 	 * Block Place event
@@ -106,18 +105,65 @@ public class PhysicalShopListener implements Listener {
 		}
 	}
 	/**
+	 * Stop EntityChangeBlockEvents from affecting stores.
+	 * Prevents Endermen from breaking stores, etc.
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onEntityChangeBlock(final EntityChangeBlockEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Entity Explode event
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onEntityExplode(final EntityExplodeEvent e) {
+		for (final Block block : e.blockList()) {
+			if(onBlockDestroyed(e, null, block)) return;
+		}
+	}
+	/**
+	 * Block BlockBurnEvent if it destroyed shop
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPhysics(final BlockBurnEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Block LeavesDecayEvent if it destroyed shop
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPhysics(final BlockFadeEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Block BlockPhysicsEvent if it destroyed shop
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPhysics(final BlockPhysicsEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Block LeavesDecayEvent if it destroyed shop
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onPhysics(final LeavesDecayEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
 	 * Block the BlockPistonExtendEvent if it will move the block
 	 * a store sign is on.
 	 * @param e Event
 	 */
 	@EventHandler
 	public void onPistonExtend(final BlockPistonExtendEvent e) {
-		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
-
 		for (final Block block : e.getBlocks()) {
-			if (!ShopHelpers.isBlockDestroyable(block, null, plugin)) {
-				e.setCancelled(true);
-			}
+			if(onBlockDestroyed(e, null, block)) return;
 		}
 	}
 	/**
@@ -127,47 +173,15 @@ public class PhysicalShopListener implements Listener {
 	 */
 	@EventHandler
 	public void onPistonRetract(final BlockPistonRetractEvent e) {
-		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
+		final BlockFace direction = e.getDirection();
 
-		// We only care about sticky pistons retracting.
+		// We need to check to see if a sign is attached to the piston piece
+		final Block b = e.getBlock();
+		if(onBlockDestroyed(e, null, b.getRelative(direction))) return;
+
+		// We only care about the second block if sticky piston is retracting.
 		if (!e.isSticky()) return;
-
-		BlockFace direction = e.getDirection();
-		Block pulledBlock = e.getBlock().getRelative(direction, 2);
-
-		if (!ShopHelpers.isBlockDestroyable(pulledBlock, null, plugin)) {
-			e.setCancelled(true);
-		}
-	}
-	/**
-	 * Entity Explode event
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onEntityExplode(final EntityExplodeEvent e) {
-		if (e.isCancelled()) return;
-
-		if (!plugin.getPluginConfig().isProtectExplode()) return;
-
-		for (final Block block : e.blockList()) {
-			if (!ShopHelpers.isBlockDestroyable(block, null, plugin)) {
-				e.setCancelled(true);
-				return;
-			}
-		}
-	}
-	/**
-	 * Stop EntityChangeBlockEvents from affecting stores.
-	 * Prevents Endermen from breaking stores, etc.
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onEntityChangeBlock(final EntityChangeBlockEvent e) {
-		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return;
-
-		if (!ShopHelpers.isBlockDestroyable(e.getBlock(), null, plugin)) {
-			e.setCancelled(true);
-		}
+		onBlockDestroyed(e, null, b.getRelative(direction, 2));
 	}
 	/**
 	 * Player Interact event
