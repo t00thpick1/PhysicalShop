@@ -8,6 +8,8 @@ import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE;
 import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE_CHEST;
 import static com.wolvereness.physicalshop.config.Localized.Message.EXISTING_CHEST;
 
+import java.util.logging.Level;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -29,6 +31,8 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import com.wolvereness.physicalshop.events.ShopCreationEvent;
+import com.wolvereness.physicalshop.events.ShopSignCreationEvent;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
 import com.wolvereness.physicalshop.exception.InvalidSignOwnerException;
 import com.wolvereness.util.NameCollection;
@@ -74,17 +78,16 @@ public class PhysicalShopListener implements Listener {
 	 */
 	@EventHandler
 	public void onBlockPlace(final BlockPlaceEvent e) {
-		if (e.isCancelled()) return;
-
-		if (!plugin.getPluginConfig().isProtectChestAccess()) return;
-
-		if (plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
-
-		if (e.getBlock().getType() != Material.CHEST) return;
-
-		// Messaging.save(e.getPlayer());
+		if (e.isCancelled() || e.getBlock().getType() != Material.CHEST) return;
+		if (!plugin.getPluginConfig().isProtectChestAccess() || plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
 
 		final Block block = e.getBlock();
+
+		final Shop placedShop = ShopHelpers.getShop(block.getRelative(BlockFace.UP), plugin);
+		if(placedShop != null) {
+			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
+			return;
+		}
 
 		final Block[] blocks = new Block[] {
 				block.getRelative(BlockFace.NORTH),
@@ -96,7 +99,7 @@ public class PhysicalShopListener implements Listener {
 			if (b.getType() == Material.CHEST) {
 				final Shop shop = ShopHelpers.getShop(b.getRelative(BlockFace.UP), plugin);
 
-				if ((shop != null) && shop.isShopBlock(b)) {
+				if ((shop != null) && shop.isShopBlock(b) && !shop.canDestroy(e.getPlayer(), plugin)) {
 					plugin.getLocale().sendMessage(e.getPlayer(), CANT_PLACE_CHEST);
 					e.setCancelled(true);
 					break;
@@ -121,6 +124,19 @@ public class PhysicalShopListener implements Listener {
 	public void onEntityExplode(final EntityExplodeEvent e) {
 		for (final Block block : e.blockList()) {
 			if(onBlockDestroyed(e, null, block)) return;
+		}
+	}
+	/**
+	 * This listens for new shop creation and checks to see if the player has permission to build over a chest
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onNewShopSign(final ShopSignCreationEvent e) {
+		if(e.isCancelled() || !e.isCheckExistingChest()) return;
+		if(
+				plugin.lwcCheck(e.getCause().getBlock().getRelative(BlockFace.DOWN), e.getCause().getPlayer())
+				|| plugin.locketteCheck(e.getCause().getBlock().getRelative(BlockFace.DOWN), e.getCause().getPlayer())) {
+			e.setCheckExistingChest(false);
 		}
 	}
 	/**
@@ -233,7 +249,6 @@ public class PhysicalShopListener implements Listener {
 	public void onSignChange(final SignChangeEvent e) {
 		if (e.isCancelled()) return;
 
-		//final String playerName = ShopHelpers.truncateName(e.getPlayer().getName());
 		try {
 			new Shop(e.getLines(), plugin);
 		} catch (final InvalidSignOwnerException ex) {
@@ -247,23 +262,14 @@ public class PhysicalShopListener implements Listener {
 			return;
 		}
 
+		final ShopSignCreationEvent event = new ShopSignCreationEvent(e);
 		if (e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
 			if (!plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
 				plugin.getLocale().sendMessage(e.getPlayer(), CANT_BUILD_SERVER);
 				e.setCancelled(true);
-				return;
 			}
+			plugin.getServer().getPluginManager().callEvent(event.setCheckExistingChest(false));
 		} else {
-			if (
-					e.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST
-					&& plugin.getPluginConfig().isExistingChestProtected()
-					&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())
-					&& !plugin.lwcCheck(e.getBlock().getRelative(BlockFace.DOWN), e.getPlayer())
-					&& !plugin.locketteCheck(e.getBlock().getRelative(BlockFace.DOWN), e.getPlayer())) {
-				plugin.getLocale().sendMessage(e.getPlayer(), EXISTING_CHEST);
-				e.setCancelled(true);
-				return;
-			}
 			if (plugin.getPluginConfig().isAutoFillName()) {
 				if(plugin.getPluginConfig().isExtendedNames()) {
 					try {
@@ -272,10 +278,28 @@ public class PhysicalShopListener implements Listener {
 						plugin.getLogger().severe("Player " + e.getPlayer() + " cannot register extended name!");
 						e.getPlayer().sendMessage("Name overflow, notify server administrator!");
 						e.setCancelled(true);
+						return;
 					}
 				} else {
 					e.setLine(3, ShopHelpers.truncateName(e.getPlayer().getName()));
 				}
+			}
+			plugin.getServer().getPluginManager().callEvent(event.setCheckExistingChest(plugin.getPluginConfig().isExistingChestProtected()));
+		}
+		if (
+				!e.isCancelled()
+				&& event.isCheckExistingChest()
+				&& e.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST
+				&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
+			plugin.getLocale().sendMessage(e.getPlayer(), EXISTING_CHEST);
+			e.setCancelled(true);
+			return;
+		}
+		if(e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
+			try {
+				plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, new Shop(e.getLines(), plugin)));
+			} catch (final InvalidSignException ex) {
+				plugin.getLogger().log(Level.SEVERE, "Unexpected invalid shop", ex);
 			}
 		}
 	}

@@ -1,3 +1,7 @@
+(2/15/12) - v9.0.4 - fixed reload config
+- Fixed: Enabling name service when reloading config
+- Added: Custom event for when a sign is created
+- Added: Custom event for when a shop is created
 (2/15/12) - v9.0.3 - more break fixes
 - Fixed: fixed all the events that should be able to destroy a shop
 (2/15/12) - v9.0.2 - fix from AgentME

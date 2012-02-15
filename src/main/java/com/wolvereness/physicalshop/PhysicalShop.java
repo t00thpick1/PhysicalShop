@@ -106,8 +106,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 *            Block representing chest
 	 * @param player
 	 *            Player creating sign
-	 * @return Returns true if not protect-existing-chest or if LWC enabled and protection exists and
-	 *         player is admin of chest
+	 * @return Returns true if LWC enabled and protection exists and player is admin of chest
 	 */
 	public boolean lwcCheck(final Block block, final Player player) {
 		if (lwc == null) return false;
@@ -176,11 +175,11 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	}
 	@Override
 	public void reloadConfig() {
-		super.reloadConfig();
-		getConfig().options().copyDefaults(true);
 		if(configuration != null && configuration.isExtendedNames()) {
 			NameCollection.unregisterPlugin(this);
 		}
+		super.reloadConfig();
+		getConfig().options().copyDefaults(true);
 		configuration = new StandardConfig(this);
 		if(configuration.isExtendedNames()) {
 			NameCollection.registerPlugin(this);
