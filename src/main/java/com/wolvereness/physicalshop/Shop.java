@@ -11,6 +11,7 @@ import static com.wolvereness.physicalshop.config.Localized.Message.NO_SELL;
 import static com.wolvereness.physicalshop.config.Localized.Message.PLAYER_INVENTORY_FULL;
 import static com.wolvereness.physicalshop.config.Localized.Message.SELL;
 import static com.wolvereness.physicalshop.config.Localized.Message.SELL_RATE;
+import static java.util.logging.Level.SEVERE;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -271,22 +272,19 @@ public class Shop {
 	public void interact(final Player player, final PhysicalShop plugin) {
 		final ShopMaterial item = new ShopMaterial(player.getItemInHand());
 		try {
-		if (item.equals(getBuyCurrency())) {
-			if(buy(player, plugin)) {
-				triggerRedstone(plugin);
+			if (item.equals(getBuyCurrency())) {
+				if(buy(player, plugin)) {
+					triggerRedstone(plugin);
+				}
+			} else if (item.equals(material)) {
+				if(sell(player, plugin)) {
+					triggerRedstone(plugin);
+				}
 			}
-		} else if (item.equals(material)) {
-			if(sell(player, plugin)) {
-				triggerRedstone(plugin);
-			}
-		}
 		//*
-		} catch (final RuntimeException t) {
-			t.printStackTrace();
-			throw t;
-		} catch (final Error t) {
-			t.printStackTrace();
-			throw t;
+		} catch (final Throwable t) {
+			plugin.getLogger().log(SEVERE, "A problem has occured, please copy and report this entire stacktrace to the author(s)", t);
+
 		}
 		//*/
 	}
@@ -299,8 +297,7 @@ public class Shop {
 
 		if (block.equals(signBlock)) return true;
 
-		final org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign
-				.getData();
+		final org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
 
 		return block.equals(signBlock.getRelative(signData.getAttachedFace()));
 	}

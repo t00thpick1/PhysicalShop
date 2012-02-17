@@ -108,8 +108,7 @@ public class ShopHelpers {
 	public static Shop getShop(final Block block, final PhysicalShop plugin) {
 		if (block == null) return null;
 
-		if ((block.getType() != Material.SIGN_POST)
-				&& (block.getType() != Material.WALL_SIGN)) return null;
+		if ((block.getType() != Material.SIGN_POST) && (block.getType() != Material.WALL_SIGN)) return null;
 
 		final Sign sign = (Sign) block.getState();
 
@@ -139,7 +138,7 @@ public class ShopHelpers {
 		for (final Block b : blocks) {
 			final Shop shop = ShopHelpers.getShop(b, plugin);
 
-			if ((shop != null) && shop.isShopBlock(block)) {
+			if (shop != null && shop.isShopBlock(block)) {
 				shops.add(shop);
 			}
 		}

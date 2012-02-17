@@ -7,8 +7,7 @@ import static com.wolvereness.physicalshop.config.Localized.Message.CANT_PLACE_C
 import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE;
 import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE_CHEST;
 import static com.wolvereness.physicalshop.config.Localized.Message.EXISTING_CHEST;
-
-import java.util.logging.Level;
+import static java.util.logging.Level.SEVERE;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -83,12 +82,6 @@ public class PhysicalShopListener implements Listener {
 
 		final Block block = e.getBlock();
 
-		final Shop placedShop = ShopHelpers.getShop(block.getRelative(BlockFace.UP), plugin);
-		if(placedShop != null) {
-			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
-			return;
-		}
-
 		final Block[] blocks = new Block[] {
 				block.getRelative(BlockFace.NORTH),
 				block.getRelative(BlockFace.EAST),
@@ -99,12 +92,18 @@ public class PhysicalShopListener implements Listener {
 			if (b.getType() == Material.CHEST) {
 				final Shop shop = ShopHelpers.getShop(b.getRelative(BlockFace.UP), plugin);
 
-				if ((shop != null) && shop.isShopBlock(b) && !shop.canDestroy(e.getPlayer(), plugin)) {
+				if (shop != null && shop.isShopBlock(b) && !shop.canDestroy(e.getPlayer(), plugin)) {
 					plugin.getLocale().sendMessage(e.getPlayer(), CANT_PLACE_CHEST);
 					e.setCancelled(true);
 					break;
 				}
 			}
+		}
+
+		final Shop placedShop = ShopHelpers.getShop(block.getRelative(BlockFace.UP), plugin);
+
+		if(placedShop != null) {
+			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
 		}
 	}
 	/**
@@ -299,7 +298,7 @@ public class PhysicalShopListener implements Listener {
 			try {
 				plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, new Shop(e.getLines(), plugin)));
 			} catch (final InvalidSignException ex) {
-				plugin.getLogger().log(Level.SEVERE, "Unexpected invalid shop", ex);
+				plugin.getLogger().log(SEVERE, "Unexpected invalid shop", ex);
 			}
 		}
 	}

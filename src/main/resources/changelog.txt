@@ -1,3 +1,5 @@
+(2/17/12) - v9.0.6 - bugfix
+- Fixed: No longer create a chest next to a chest that is part of a shop of which you aren't owner
 (2/15/12) - v9.0.5 - bugfix
 - Fixed: Custom event for shop creation should no longer be thrown if event cancelled
 (2/15/12) - v9.0.4 - fixed reload config
