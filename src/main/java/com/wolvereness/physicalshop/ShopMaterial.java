@@ -12,6 +12,8 @@ import org.bukkit.material.Coal;
 import org.bukkit.material.Dye;
 import org.bukkit.material.Leaves;
 import org.bukkit.material.MaterialData;
+import org.bukkit.material.MonsterEggs;
+import org.bukkit.material.SmoothBrick;
 import org.bukkit.material.Step;
 import org.bukkit.material.Tree;
 import org.bukkit.material.Wool;
@@ -65,8 +67,12 @@ public class ShopMaterial {
 		final String[] strings = string.split(":");
 
 		if (strings.length == 2) {
-			material = Material.matchMaterial(strings[0]);
-			durability = Short.parseShort(strings[1]);
+			material = Material.matchMaterial(strings[0].trim());
+			try {
+				durability = Short.parseShort(strings[1].trim());
+			} catch (final NumberFormatException ex) {
+				throw new InvalidMaterialException();
+			}
 			return;
 		}
 
@@ -124,13 +130,13 @@ public class ShopMaterial {
 	}
 	@Override
 	public int hashCode() {
-		if(hash == 0) return hash  = new Integer(material.getId() << 16 + durability).hashCode();
+		if(hash == 0) return hash = new Integer(material.getId() << 16 + durability).hashCode();
 		return hash;
 	}
 
 	@SuppressWarnings("javadoc")
 	@Deprecated
-	public Short parseDurability(final String string,final Material material) {
+	public short parseDurability(final String string,final Material material) {
 		try {
 			return Short.parseShort(string);
 		} catch (final NumberFormatException e) {
@@ -161,6 +167,12 @@ public class ShopMaterial {
 			case WOOL:
 				data = new Wool(DyeColor.valueOf(s));
 				break;
+			case MONSTER_EGGS:
+				data = new MonsterEggs(Material.valueOf(s));
+				break;
+			case SMOOTH_BRICK:
+				data = new SmoothBrick(Material.valueOf(s));
+				break;
 			}
 		} catch (final IllegalArgumentException e) {
 		}
@@ -170,7 +182,7 @@ public class ShopMaterial {
 
 	@Override
 	public String toString() {
-		return ShopMaterial.toHumanReadableString(toStringDefault(new StringBuilder()).toString());
+		return toHumanReadableString(toStringDefault(new StringBuilder()).toString());
 	}
 
 	/**
@@ -205,6 +217,12 @@ public class ShopMaterial {
 			break;
 		case WOOL:
 			sb.append(new Wool(material, (byte) durability).getColor().toString()).append('_');
+			break;
+		case MONSTER_EGGS:
+			sb.append(new MonsterEggs(material, (byte) durability).getMaterial().toString()).append('_');
+			break;
+		case SMOOTH_BRICK:
+			sb.append(new SmoothBrick(material, (byte) durability).getMaterial().toString()).append('_');
 			break;
 		}
 		return sb.append(material.toString());

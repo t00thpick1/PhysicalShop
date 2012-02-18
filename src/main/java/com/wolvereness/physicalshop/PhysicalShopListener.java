@@ -1,22 +1,24 @@
 package com.wolvereness.physicalshop;
 
+import static com.wolvereness.physicalshop.ShopHelpers.getShop;
+import static com.wolvereness.physicalshop.ShopHelpers.isBlockDestroyable;
+import static com.wolvereness.physicalshop.ShopHelpers.isProtectedChestsAround;
+import static com.wolvereness.physicalshop.ShopHelpers.truncateName;
 import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
-import static com.wolvereness.physicalshop.config.Localized.Message.CANT_BUILD;
-import static com.wolvereness.physicalshop.config.Localized.Message.CANT_BUILD_SERVER;
-import static com.wolvereness.physicalshop.config.Localized.Message.CANT_PLACE_CHEST;
-import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE;
-import static com.wolvereness.physicalshop.config.Localized.Message.CANT_USE_CHEST;
-import static com.wolvereness.physicalshop.config.Localized.Message.EXISTING_CHEST;
+import static com.wolvereness.physicalshop.config.Localized.Message.*;
 import static java.util.logging.Level.SEVERE;
+import static org.bukkit.Material.CHEST;
+import static org.bukkit.block.BlockFace.DOWN;
+import static org.bukkit.block.BlockFace.UP;
+import static org.bukkit.event.block.Action.LEFT_CLICK_BLOCK;
+import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFadeEvent;
@@ -55,95 +57,15 @@ public class PhysicalShopListener implements Listener {
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onBlockBreak(final BlockBreakEvent e) {
+	public void onBlockBlockBreak(final BlockBreakEvent e) {
 		onBlockDestroyed(e, e.getPlayer(), e.getBlock());
-	}
-	/**
-	 * Central place for checking for an event cancellation
-	 * @param e Event
-	 * @param p Player
-	 * @param b Block
-	 * @return true if the caller should cease execution
-	 */
-	public boolean onBlockDestroyed(final Cancellable e, final Player p, final Block b) {
-		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return true;
-		if (ShopHelpers.isBlockDestroyable(b, p, plugin)) return false;
-		e.setCancelled(true);
-		return true;
-	}
-	/**
-	 * Block Place event
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onBlockPlace(final BlockPlaceEvent e) {
-		if (e.isCancelled() || e.getBlock().getType() != Material.CHEST) return;
-		if (!plugin.getPluginConfig().isProtectChestAccess() || plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
-
-		final Block block = e.getBlock();
-
-		final Block[] blocks = new Block[] {
-				block.getRelative(BlockFace.NORTH),
-				block.getRelative(BlockFace.EAST),
-				block.getRelative(BlockFace.SOUTH),
-				block.getRelative(BlockFace.WEST), };
-
-		for (final Block b : blocks) {
-			if (b.getType() == Material.CHEST) {
-				final Shop shop = ShopHelpers.getShop(b.getRelative(BlockFace.UP), plugin);
-
-				if (shop != null && shop.isShopBlock(b) && !shop.canDestroy(e.getPlayer(), plugin)) {
-					plugin.getLocale().sendMessage(e.getPlayer(), CANT_PLACE_CHEST);
-					e.setCancelled(true);
-					break;
-				}
-			}
-		}
-
-		final Shop placedShop = ShopHelpers.getShop(block.getRelative(BlockFace.UP), plugin);
-
-		if(placedShop != null) {
-			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
-		}
-	}
-	/**
-	 * Stop EntityChangeBlockEvents from affecting stores.
-	 * Prevents Endermen from breaking stores, etc.
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onEntityChangeBlock(final EntityChangeBlockEvent e) {
-		onBlockDestroyed(e, null, e.getBlock());
-	}
-	/**
-	 * Entity Explode event
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onEntityExplode(final EntityExplodeEvent e) {
-		for (final Block block : e.blockList()) {
-			if(onBlockDestroyed(e, null, block)) return;
-		}
-	}
-	/**
-	 * This listens for new shop creation and checks to see if the player has permission to build over a chest
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onNewShopSign(final ShopSignCreationEvent e) {
-		if(e.isCancelled() || !e.isCheckExistingChest()) return;
-		if(
-				plugin.lwcCheck(e.getCause().getBlock().getRelative(BlockFace.DOWN), e.getCause().getPlayer())
-				|| plugin.locketteCheck(e.getCause().getBlock().getRelative(BlockFace.DOWN), e.getCause().getPlayer())) {
-			e.setCheckExistingChest(false);
-		}
 	}
 	/**
 	 * Block BlockBurnEvent if it destroyed shop
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onPhysics(final BlockBurnEvent e) {
+	public void onBlockBlockBurn(final BlockBurnEvent e) {
 		onBlockDestroyed(e, null, e.getBlock());
 	}
 	/**
@@ -151,7 +73,7 @@ public class PhysicalShopListener implements Listener {
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onPhysics(final BlockFadeEvent e) {
+	public void onBlockBlockFade(final BlockFadeEvent e) {
 		onBlockDestroyed(e, null, e.getBlock());
 	}
 	/**
@@ -159,15 +81,7 @@ public class PhysicalShopListener implements Listener {
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onPhysics(final BlockPhysicsEvent e) {
-		onBlockDestroyed(e, null, e.getBlock());
-	}
-	/**
-	 * Block LeavesDecayEvent if it destroyed shop
-	 * @param e Event
-	 */
-	@EventHandler
-	public void onPhysics(final LeavesDecayEvent e) {
+	public void onBlockBlockPhysics(final BlockPhysicsEvent e) {
 		onBlockDestroyed(e, null, e.getBlock());
 	}
 	/**
@@ -176,7 +90,7 @@ public class PhysicalShopListener implements Listener {
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onPistonExtend(final BlockPistonExtendEvent e) {
+	public void onBlockBlockPistonExtend(final BlockPistonExtendEvent e) {
 		for (final Block block : e.getBlocks()) {
 			if(onBlockDestroyed(e, null, block)) return;
 		}
@@ -187,7 +101,7 @@ public class PhysicalShopListener implements Listener {
 	 * @param e Event
 	 */
 	@EventHandler
-	public void onPistonRetract(final BlockPistonRetractEvent e) {
+	public void onBlockBlockPistonRetract(final BlockPistonRetractEvent e) {
 		final BlockFace direction = e.getDirection();
 
 		// We need to check to see if a sign is attached to the piston piece
@@ -199,6 +113,87 @@ public class PhysicalShopListener implements Listener {
 		onBlockDestroyed(e, null, b.getRelative(direction, 2));
 	}
 	/**
+	 * Central place for checking for an event cancellation
+	 * @param e Event
+	 * @param p Player
+	 * @param b Block
+	 * @return true if the caller should cease execution
+	 */
+	public boolean onBlockDestroyed(final Cancellable e, final Player p, final Block b) {
+		if (e.isCancelled() || !plugin.getPluginConfig().isProtectBreak()) return true;
+		if (p != null && plugin.getPermissionHandler().hasAdmin(p)) return true;
+		if (isBlockDestroyable(b, p, plugin)) {
+			if(p != null) {
+				plugin.getLocale().sendMessage(p, CANT_DESTROY);
+			}
+			return false;
+		}
+		e.setCancelled(true);
+		return true;
+	}
+	/**
+	 * Stop EntityChangeBlockEvents from affecting stores.
+	 * Prevents Endermen from breaking stores, etc.
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onBlockEntityChangeBlock(final EntityChangeBlockEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Entity Explode event
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onBlockEntityExplode(final EntityExplodeEvent e) {
+		for (final Block block : e.blockList()) {
+			if(onBlockDestroyed(e, null, block)) return;
+		}
+	}
+	/**
+	 * Block LeavesDecayEvent if it destroyed shop
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onBlockLeavesDecay(final LeavesDecayEvent e) {
+		onBlockDestroyed(e, null, e.getBlock());
+	}
+	/**
+	 * Block Place event
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onBlockPlace(final BlockPlaceEvent e) {
+		if (e.isCancelled() || e.getBlock().getType() != CHEST) return;
+		if (!plugin.getPluginConfig().isProtectChestAccess() || plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
+
+		final Block block = e.getBlock();
+
+		if(isProtectedChestsAround(block, e.getPlayer(), plugin)) {
+			plugin.getLocale().sendMessage(e.getPlayer(), CANT_PLACE_CHEST);
+			e.setCancelled(true);
+			return;
+		}
+
+		final Shop placedShop = getShop(block.getRelative(UP), plugin);
+		if(placedShop != null) {
+			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
+		}
+	}
+	/**
+	 * This listens for new shop creation and checks to see if the player has permission to build over a chest
+	 * @param e Event
+	 */
+	@EventHandler
+	public void onNewShopSign(final ShopSignCreationEvent e) {
+		if(e.isCancelled() || !e.isCheckExistingChest()) return;
+		if(
+				plugin.lwcCheck(e.getCause().getBlock().getRelative(DOWN), e.getCause().getPlayer())
+				|| plugin.locketteCheck(e.getCause().getBlock().getRelative(DOWN), e.getCause().getPlayer())) {
+			e.setCheckExistingChest(false);
+		}
+	}
+	/**
 	 * Player Interact event
 	 * @param e Event
 	 */
@@ -207,24 +202,21 @@ public class PhysicalShopListener implements Listener {
 		if (e.isCancelled()) return;
 
 		final Block block = e.getClickedBlock();
-
 		if (
 				plugin.getPluginConfig().isProtectChestAccess()
-				&& (e.getAction() == Action.RIGHT_CLICK_BLOCK)
-				&& (block.getType() == Material.CHEST)) {
-			final Shop shop = ShopHelpers.getShop(block.getRelative(BlockFace.UP), plugin);
-			if (
-					(shop != null)
-					&& shop.isShopBlock(block)
-					&& !shop.canDestroy(e.getPlayer(), plugin)
-					&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
+				&& e.getAction() == RIGHT_CLICK_BLOCK
+				&& block.getType() == CHEST
+				&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())
+				) {
+			if(isProtectedChestsAround(block, e.getPlayer(), plugin)) {
 				plugin.getLocale().sendMessage(e.getPlayer(), CANT_USE_CHEST);
 				e.setCancelled(true);
 				return;
 			}
+			return;
 		}
 
-		final Shop shop = ShopHelpers.getShop(block, plugin);
+		final Shop shop = getShop(block, plugin);
 
 		if (shop == null) return;
 
@@ -233,9 +225,9 @@ public class PhysicalShopListener implements Listener {
 			return;
 		}
 
-		if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+		if (e.getAction() == LEFT_CLICK_BLOCK) {
 			shop.status(e.getPlayer(), plugin);
-		} else if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		} else if (e.getAction() == RIGHT_CLICK_BLOCK) {
 			shop.interact(e.getPlayer(), plugin);
 			e.setCancelled(true);
 		}
@@ -280,7 +272,7 @@ public class PhysicalShopListener implements Listener {
 						return;
 					}
 				} else {
-					e.setLine(3, ShopHelpers.truncateName(e.getPlayer().getName()));
+					e.setLine(3, truncateName(e.getPlayer().getName()));
 				}
 			}
 			plugin.getServer().getPluginManager().callEvent(event.setCheckExistingChest(plugin.getPluginConfig().isExistingChestProtected()));
@@ -288,7 +280,7 @@ public class PhysicalShopListener implements Listener {
 		if (
 				!e.isCancelled()
 				&& event.isCheckExistingChest()
-				&& e.getBlock().getRelative(BlockFace.DOWN).getType() == Material.CHEST
+				&& e.getBlock().getRelative(DOWN).getType() == CHEST
 				&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
 			plugin.getLocale().sendMessage(e.getPlayer(), EXISTING_CHEST);
 			e.setCancelled(true);

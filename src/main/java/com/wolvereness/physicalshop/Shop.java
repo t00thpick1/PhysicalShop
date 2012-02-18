@@ -2,15 +2,7 @@ package com.wolvereness.physicalshop;
 
 
 import static com.wolvereness.physicalshop.config.ConfigOptions.TRIGGER_REDSTONE;
-import static com.wolvereness.physicalshop.config.Localized.Message.BUY;
-import static com.wolvereness.physicalshop.config.Localized.Message.BUY_RATE;
-import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_PLAYER_ITEMS;
-import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_PLAYER_MONEY;
-import static com.wolvereness.physicalshop.config.Localized.Message.NO_BUY;
-import static com.wolvereness.physicalshop.config.Localized.Message.NO_SELL;
-import static com.wolvereness.physicalshop.config.Localized.Message.PLAYER_INVENTORY_FULL;
-import static com.wolvereness.physicalshop.config.Localized.Message.SELL;
-import static com.wolvereness.physicalshop.config.Localized.Message.SELL_RATE;
+import static com.wolvereness.physicalshop.config.Localized.Message.*;
 import static java.util.logging.Level.SEVERE;
 
 import org.bukkit.Location;
@@ -27,6 +19,7 @@ import com.wolvereness.physicalshop.exception.InvalidExchangeException;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
 import com.wolvereness.physicalshop.exception.InvalidSignOwnerException;
+import com.wolvereness.util.NameCollection;
 
 /**
  *
@@ -89,7 +82,6 @@ public class Shop {
 	 * @throws InvalidSignException If the sign text does not match correct pattern.
 	 */
 	public Shop(final String[] lines, final PhysicalShop plugin) throws InvalidSignException {
-		//String[] lines = sign.getLines();
 		material = Shop.getMaterial(lines, plugin.getMaterialConfig());
 
 		if (material == null) throw new InvalidSignException();
@@ -179,16 +171,6 @@ public class Shop {
 	 */
 	public boolean canBuy() {
 		return buyRate != null;
-	}
-	/**
-	 * This checks player for permission to destroy this shop
-	 * @param player player to consider
-	 * @param plugin The active PhysicalShop plugin
-	 * @return true if and only if player may destroy this shop
-	 */
-	public boolean canDestroy(final Player player, final PhysicalShop plugin) {
-		return (player != null)
-				&& plugin.getPermissionHandler().hasAdmin(player);
 	}
 	/**
 	 * @return true if and only if this shop supports selling
@@ -301,6 +283,16 @@ public class Shop {
 
 		return block.equals(signBlock.getRelative(signData.getAttachedFace()));
 	}
+	/**
+	 * @param player Player to check
+	 * @param plugin PhysicalShop currently active
+	 * @return The owner of the shop, after a name checking if applicable
+	 */
+	public boolean isSmartOwner(final String player, final PhysicalShop plugin) {
+		return plugin.getPluginConfig().isExtendedNames()
+			? NameCollection.matches(ownerName, player)
+			: ownerName.equals(player);
+	}
 	private void queryLogBlock(final Player player, final boolean selling, final PhysicalShop plugin) {
 		if (plugin.getLogBlock() == null) return;
 		final Location chestLocation = sign.getBlock().getRelative(BlockFace.DOWN).getLocation();
@@ -359,8 +351,7 @@ public class Shop {
 		final int amount = getSellRate().getAmount();
 
 		try {
-			InventoryHelpers.exchange(inventory, getSellCurrency()
-					.getStack(price), material.getStack(amount));
+			InventoryHelpers.exchange(inventory, getSellCurrency().getStack(price), material.getStack(amount));
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:

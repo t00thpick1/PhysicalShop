@@ -1,3 +1,6 @@
+(2/17/12) - v9.0.7 - refactor
+- Changed: More code is put into ShopHelpers, cleans up the listener and some shop stuff
+- Fixed: Access to double chests is now covered by PhysicalShop
 (2/17/12) - v9.0.6 - bugfix
 - Fixed: No longer create a chest next to a chest that is part of a shop of which you aren't owner
 (2/15/12) - v9.0.5 - bugfix

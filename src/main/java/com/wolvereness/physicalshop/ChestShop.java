@@ -1,12 +1,6 @@
 package com.wolvereness.physicalshop;
 
-import static com.wolvereness.physicalshop.config.Localized.Message.CHEST_INVENTORY_FULL;
-import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_SHOP_ITEMS;
-import static com.wolvereness.physicalshop.config.Localized.Message.NOT_ENOUGH_SHOP_MONEY;
-import static com.wolvereness.physicalshop.config.Localized.Message.NO_BUY;
-import static com.wolvereness.physicalshop.config.Localized.Message.NO_SELL;
-import static com.wolvereness.physicalshop.config.Localized.Message.STATUS;
-import static com.wolvereness.physicalshop.config.Localized.Message.STATUS_ONE_CURRENCY;
+import static com.wolvereness.physicalshop.config.Localized.Message.*;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,7 +11,6 @@ import org.bukkit.entity.Player;
 
 import com.wolvereness.physicalshop.exception.InvalidExchangeException;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
-import com.wolvereness.util.NameCollection;
 
 /**
  *
@@ -45,8 +38,7 @@ public class ChestShop extends Shop {
 			plugin.getLocale().sendMessage(player, NO_BUY);
 			return false;
 		}
-		final ShopItemStack[] items = InventoryHelpers.getItems(chest
-				.getInventory());
+		final ShopItemStack[] items = InventoryHelpers.getItems(chest.getInventory());
 
 		try {
 			InventoryHelpers.exchange(chest.getInventory(), getBuyCurrency().getStack(getBuyRate().getPrice()), getMaterial().getStack(getBuyRate().getAmount()));
@@ -72,20 +64,6 @@ public class ChestShop extends Shop {
 			return false;
 		}
 		return true;
-	}
-	@Override
-	public boolean canDestroy(final Player player, final PhysicalShop plugin) {
-		return (player != null)
-				&& (
-					plugin.getPermissionHandler().hasAdmin(player)
-					|| (
-						plugin.getPluginConfig().isExtendedNames()
-						?
-							NameCollection.matches(getOwnerName(), player.getName())
-						:
-							player.getName().equals(getOwnerName())
-						)
-					);
 	}
 	@Override
 	/**

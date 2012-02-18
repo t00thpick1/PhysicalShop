@@ -1,15 +1,6 @@
 package com.wolvereness.physicalshop.config;
 
-import static com.wolvereness.physicalshop.config.ConfigOptions.AUTO_FILL_NAME;
-import static com.wolvereness.physicalshop.config.ConfigOptions.BUY_PATTERN;
-import static com.wolvereness.physicalshop.config.ConfigOptions.CURRENCIES;
-import static com.wolvereness.physicalshop.config.ConfigOptions.EXTENDED_NAMES;
-import static com.wolvereness.physicalshop.config.ConfigOptions.MATERIAL_PATTERN;
-import static com.wolvereness.physicalshop.config.ConfigOptions.PROTECT_BREAK;
-import static com.wolvereness.physicalshop.config.ConfigOptions.PROTECT_CHEST_ACCESS;
-import static com.wolvereness.physicalshop.config.ConfigOptions.PROTECT_EXISTING_CHEST;
-import static com.wolvereness.physicalshop.config.ConfigOptions.PROTECT_EXPLODE;
-import static com.wolvereness.physicalshop.config.ConfigOptions.SELL_PATTERN;
+import static com.wolvereness.physicalshop.config.ConfigOptions.*;
 
 import java.util.regex.Pattern;
 
