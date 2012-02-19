@@ -6,38 +6,34 @@ import java.util.regex.Pattern;
 
 import org.bukkit.plugin.Plugin;
 
-//"Buy (?=\\d{1,4})|(?<=\\d{1,4}) for (?=\\d{1,4})|(?<= for \\d{1,4})(?=\\D)"
-//Inferior
-//"(?<=Buy )\\d{1,4}(?= for \\d{1,4}\\D)|(?<=Buy \\d{1,4} for )\\d{1,4}(?=\\D)|(?<=Buy \\d{1,4} for \\d{1,4})\\D"
-
 /**
- *
+ * @author Wolfe
+ * Licensed under GNU GPL v3
  */
 public class StandardConfig {
-	private final Pattern buyPattern;
+	private final PatternHandler buyPattern;
 	private final Pattern materialPattern;
 	private final Plugin plugin;
-	private final Pattern sellPattern;
+	private final PatternHandler sellPattern;
 	/**
 	 * makes a new standard config, loading up defaults
 	 * @param plugin Used to get the config
 	 */
 	public StandardConfig(final Plugin plugin) {
 		this.plugin = plugin;
-		buyPattern = Pattern.compile(plugin.getConfig().getString(BUY_PATTERN));
+		buyPattern = new PatternHandler(plugin.getConfig().getConfigurationSection(BUY_SECTION));
 		materialPattern = Pattern.compile(plugin.getConfig().getString(MATERIAL_PATTERN));
-		sellPattern = Pattern.compile(plugin.getConfig().getString(SELL_PATTERN));
+		sellPattern = new PatternHandler(plugin.getConfig().getConfigurationSection(SELL_SECTION));
 		if(!plugin.getConfig().isConfigurationSection(CURRENCIES)) {
 			plugin.getConfig().set(CURRENCIES + ".g", "Gold Ingot");;
 		}
 	}
 	/**
 	 * Pattern for 'buy-from-shop' (second line on signs).
-	 * "buy-pattern"
 	 *
-	 * @return the pattern splitting the Buy line
+	 * @return the pattern handler for the Buy line
 	 */
-	public Pattern getBuyPattern() {
+	public PatternHandler getBuyPatternHandler() {
 		return buyPattern;
 	}
 	/**
@@ -50,11 +46,10 @@ public class StandardConfig {
 	}
 	/**
 	 * Pattern for 'sell-to-shop' (third line on signs).
-	 * "sell-pattern"
 	 *
-	 * @return the pattern splitting the Sell line
+	 * @return the pattern handler for the Sell line
 	 */
-	public Pattern getSellPattern() {
+	public PatternHandler getSellPatternHandler() {
 		return sellPattern;
 	}
 	/**

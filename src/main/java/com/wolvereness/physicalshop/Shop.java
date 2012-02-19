@@ -46,25 +46,15 @@ public class Shop {
 	public static String getOwnerName(final String[] lines) {
 		return lines[3];
 	}
-	private static Rate getRate(final String amount, final String price) {
-		try
-		{
-			return new Rate(Integer.parseInt(amount), Integer.parseInt(price));
-		} catch (final NumberFormatException e) {
-			return null;
-		}
-	}
 	@SuppressWarnings("deprecation")
 	private static void updateInventory(final Player player) {
 		player.updateInventory();
 	}
-	private final ShopMaterial buyCurrency;
 	private final Rate buyRate;
 	private final ShopMaterial material;
 	private final String ownerName;
-	private final ShopMaterial sellCurrency;
 	private final Rate sellRate;
-	private Sign sign = null;
+	private final Sign sign;
 	/**
 	 * Initializes Shop based off of sign.
 	 * @param sign the sign to consider
@@ -72,8 +62,7 @@ public class Shop {
 	 * @throws InvalidSignException If sign does not match correct pattern.
 	 */
 	public Shop(final Sign sign, final PhysicalShop plugin) throws InvalidSignException {
-		this(sign.getLines(), plugin);
-		this.sign = sign;
+		this(sign.getLines(), plugin, sign);
 	}
 	/**
 	 * Initializes a shop based off the lines from a sign. Used to check validity.
@@ -82,42 +71,25 @@ public class Shop {
 	 * @throws InvalidSignException If the sign text does not match correct pattern.
 	 */
 	public Shop(final String[] lines, final PhysicalShop plugin) throws InvalidSignException {
-		material = Shop.getMaterial(lines, plugin.getMaterialConfig());
+		this(lines, plugin, null);
+	}
+	/**
+	 * Initializes a shop based off the lines from a sign. Used to check validity.
+	 * @param lines the text from the sign to consider
+	 * @param plugin The active PhysicalShop plugin
+	 * @param sign the sign to consider
+	 * @throws InvalidSignException If the sign text does not match correct pattern.
+	 */
+	private Shop(final String[] lines, final PhysicalShop plugin, final Sign sign) throws InvalidSignException {
+		this.sign = sign;
+		material = getMaterial(lines, plugin.getMaterialConfig());
 
 		if (material == null) throw new InvalidSignException();
 
-		final String[] buySet = plugin.getPluginConfig().getBuyPattern().split(lines[1]);
-		final String[] sellSet = plugin.getPluginConfig().getSellPattern().split(lines[2]);
+		buyRate = plugin.getPluginConfig().getBuyPatternHandler().getRate(lines[1], plugin);
+		sellRate = plugin.getPluginConfig().getSellPatternHandler().getRate(lines[2], plugin);
 
-		if (buySet.length != 4 && sellSet.length != 4) throw new InvalidSignException();
-
-		Rate buyRate = null, sellRate = null;
-		ShopMaterial buyCurrency = null, sellCurrency = null;
-
-		try
-		{
-			if(buySet.length == 4)
-			{
-				buyCurrency = plugin.getMaterialConfig().getCurrency(buySet[3].charAt(0));
-				buyRate = getRate(buySet[1], buySet[2]);
-			}
-		} catch (final InvalidSignException e) {}
-
-		try
-		{
-			if(sellSet.length == 4)
-			{
-				sellCurrency = plugin.getMaterialConfig().getCurrency(sellSet[3].charAt(0));
-				sellRate =  getRate(sellSet[1], sellSet[2]);
-			}
-		} catch (final InvalidSignException e) {}
-
-		if (sellCurrency == null && buyCurrency == null) throw new InvalidSignException();
-
-		this.buyCurrency = buyCurrency;
-		this.sellCurrency = sellCurrency;
-		this.buyRate = buyRate;
-		this.sellRate = sellRate;
+		if (buyRate == null && sellRate == null) throw new InvalidSignException();
 
 		if (((this.ownerName = lines[3]) == null) || ownerName.length() == 0) throw new InvalidSignOwnerException();
 	}
@@ -182,7 +154,8 @@ public class Shop {
 	 * @return the currency associated with buying
 	 */
 	public ShopMaterial getBuyCurrency() {
-		return buyCurrency;
+		if(!canBuy()) return null;
+		return buyRate.getMaterial();
 	}
 	/**
 	 * @return the rate associated with buying
@@ -196,21 +169,19 @@ public class Shop {
 	public ShopMaterial getMaterial() {
 		return material;
 	}
-
 	/**
 	 * @return the owner of this shop
 	 */
 	public String getOwnerName() {
 		return ownerName;
 	}
-
 	/**
 	 * @return the currency associated with selling
 	 */
 	public ShopMaterial getSellCurrency() {
-		return sellCurrency;
+		if(!canSell()) return null;
+		return sellRate.getMaterial();
 	}
-
 	/**
 	 * @return the rate associated with selling
 	 */
@@ -263,12 +234,9 @@ public class Shop {
 					triggerRedstone(plugin);
 				}
 			}
-		//*
 		} catch (final Throwable t) {
 			plugin.getLogger().log(SEVERE, "A problem has occured, please copy and report this entire stacktrace to the author(s)", t);
-
 		}
-		//*/
 	}
 	/**
 	 * @param block block to consider

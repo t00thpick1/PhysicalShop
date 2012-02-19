@@ -1,6 +1,6 @@
 package com.wolvereness.physicalshop;
 
-import static com.wolvereness.physicalshop.config.ConfigOptions.LOG_BLOCK;
+import static com.wolvereness.physicalshop.config.ConfigOptions.*;
 
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -174,12 +174,21 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public void onLoad() {
 	}
 	@Override
+	@SuppressWarnings("deprecation")
 	public void reloadConfig() {
 		if(configuration != null && configuration.isExtendedNames()) {
 			NameCollection.unregisterPlugin(this);
 		}
 		super.reloadConfig();
 		getConfig().options().copyDefaults(true);
+		if(getConfig().isSet(BUY_PATTERN)) {
+			getConfig().getConfigurationSection(BUY_SECTION).set(PATTERN, getConfig().getString(BUY_PATTERN));
+			getConfig().set(BUY_PATTERN, null);
+		}
+		if(getConfig().isSet(SELL_PATTERN)) {
+			getConfig().getConfigurationSection(SELL_SECTION).set(PATTERN, getConfig().getString(SELL_PATTERN));
+			getConfig().set(SELL_PATTERN, null);
+		}
 		configuration = new StandardConfig(this);
 		if(configuration.isExtendedNames()) {
 			NameCollection.registerPlugin(this);

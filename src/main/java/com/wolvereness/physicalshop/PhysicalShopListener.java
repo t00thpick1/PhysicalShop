@@ -1,9 +1,6 @@
 package com.wolvereness.physicalshop;
 
-import static com.wolvereness.physicalshop.ShopHelpers.getShop;
-import static com.wolvereness.physicalshop.ShopHelpers.isBlockDestroyable;
-import static com.wolvereness.physicalshop.ShopHelpers.isProtectedChestsAround;
-import static com.wolvereness.physicalshop.ShopHelpers.truncateName;
+import static com.wolvereness.physicalshop.ShopHelpers.*;
 import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
 import static com.wolvereness.physicalshop.config.Localized.Message.*;
 import static java.util.logging.Level.SEVERE;

@@ -20,7 +20,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.wolvereness.physicalshop.PhysicalShop;
 import com.wolvereness.physicalshop.ShopMaterial;
 import com.wolvereness.physicalshop.exception.InvalidMaterialException;
-import com.wolvereness.physicalshop.exception.InvalidSignException;
 
 /**
  * @author Wolfe
@@ -110,12 +109,11 @@ public class MaterialConfig {
 	/**
 	 * Searches for ShopMaterial associated with currency character.
 	 * @param currencyIdentifier The character the shop will be associated with.
-	 * @return ShopMaterial Associated with the currencyIdentifier
-	 * @throws InvalidSignException If the currency isn't listed.
+	 * @return ShopMaterial Associated with the currencyIdentifier, or null if not found
 	 */
-	public ShopMaterial getCurrency(final char currencyIdentifier) throws InvalidSignException {
+	public ShopMaterial getCurrency(final char currencyIdentifier) {
 		final Character searchCharacter = Character.valueOf(currencyIdentifier);
-		if(!currencies.containsKey(searchCharacter)) throw new InvalidSignException();
+		if(!currencies.containsKey(searchCharacter)) return null;
 		return currencies.get(searchCharacter);
 	}
 	/**
@@ -136,8 +134,7 @@ public class MaterialConfig {
 	 */
 	public ShopMaterial getShopMaterial(String name, final boolean checkPattern) throws InvalidMaterialException {
 		name = junkCharacters.matcher(spaces.matcher(checkPattern ? checkPattern(name) : name).replaceAll("_")).replaceAll("").toUpperCase();
-		if(identifiers.containsKey(name))
-			return identifiers.get(name);
+		if(identifiers.containsKey(name)) return identifiers.get(name);
 		return new ShopMaterial(name);
 	}
 

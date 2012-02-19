@@ -6,17 +6,31 @@ package com.wolvereness.physicalshop.config;
  */
 public class ConfigOptions {
 	/**
+	 * Config option, "amount-index"
+	 */
+	public static String AMOUNT_INDEX = "amount-index";
+	/**
 	 * Config option, "auto-fill-name"
 	 */
 	public static String AUTO_FILL_NAME = "auto-fill-name";
 	/**
 	 * Config option, "buy-pattern"
 	 */
+	@Deprecated
 	public static String BUY_PATTERN = "buy-pattern";
+	/**
+	 * Config option, "buy"
+	 */
+	public static String BUY_SECTION = "buy";
 	/**
 	 * Config option, "currencies"
 	 */
 	public static String CURRENCIES = "currencies";
+	/**
+	 * Config option, "currency-index"
+	 */
+	public static String CURRENCY_INDEX = "currency-index";
+
 	/**
 	 * Config option, "extended-names"
 	 */
@@ -33,6 +47,18 @@ public class ConfigOptions {
 	 * Config option, "material-pattern"
 	 */
 	public static String MATERIAL_PATTERN = "material-pattern";
+	/**
+	 * Config option, "mode"
+	 */
+	public static String MODE = "mode";
+	/**
+	 * Config option, "pattern"
+	 */
+	public static String PATTERN = "pattern";
+	/**
+	 * Config option, "price-index"
+	 */
+	public static String PRICE_INDEX = "price-index";
 	/**
 	 * Config option, "protect-break"
 	 */
@@ -52,7 +78,12 @@ public class ConfigOptions {
 	/**
 	 * Config option, "sell-pattern"
 	 */
+	@Deprecated
 	public static String SELL_PATTERN = "sell-pattern";
+	/**
+	 * Config option, "sell"
+	 */
+	public static String SELL_SECTION = "sell";
 	/**
 	 * Config option, "server-shop"
 	 */
