@@ -11,7 +11,6 @@ import org.bukkit.event.block.SignChangeEvent;
  */
 public class ShopSignCreationEvent extends Event implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
-	private static final long serialVersionUID = -5055251911743712413L;
     /**
      * @return The HandlerList for this event
      */

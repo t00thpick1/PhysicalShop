@@ -25,7 +25,7 @@ public class StandardConfig {
 		materialPattern = Pattern.compile(plugin.getConfig().getString(MATERIAL_PATTERN));
 		sellPattern = new PatternHandler(plugin.getConfig().getConfigurationSection(SELL_SECTION));
 		if(!plugin.getConfig().isConfigurationSection(CURRENCIES)) {
-			plugin.getConfig().set(CURRENCIES + ".g", "Gold Ingot");;
+			plugin.getConfig().createSection(CURRENCIES).set("g", "Gold Ingot");
 		}
 	}
 	/**

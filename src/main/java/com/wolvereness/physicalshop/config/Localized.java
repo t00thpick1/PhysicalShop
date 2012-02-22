@@ -1,10 +1,13 @@
 package com.wolvereness.physicalshop.config;
 
 import static com.wolvereness.physicalshop.config.ConfigOptions.LANGUAGE;
+import static java.util.logging.Level.SEVERE;
+import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.bukkit.command.CommandSender;
@@ -93,22 +96,24 @@ public class Localized {
 	 */
 	public static Pattern colorReplace = Pattern.compile("&(?=[0-9a-f])");
 	private final YamlConfiguration config;
+	private final Logger logger;
 	/**
 	 * @param plugin plugin to consider for getting resources
 	 */
 	public Localized(final Plugin plugin) {
+		this.logger = plugin.getLogger();
 		final String language = String.valueOf(plugin.getConfig().get(LANGUAGE)).toUpperCase();
 		final File file = new File(plugin.getDataFolder(),"Locales" + File.separatorChar +  language + ".yml");
 		if(file.exists()) {
-			config = YamlConfiguration.loadConfiguration(file);
+			config = loadConfiguration(file);
 		} else {
 			config = new YamlConfiguration();
 		}
 		final InputStream resource = plugin.getResource("Locales/" + language + ".yml");
 		if(resource == null) {
-			config.addDefaults(YamlConfiguration.loadConfiguration(plugin.getResource("Locales/ENGLISH.yml")));
+			config.addDefaults(loadConfiguration(plugin.getResource("Locales/ENGLISH.yml")));
 		} else {
-			config.addDefaults(YamlConfiguration.loadConfiguration(resource));
+			config.addDefaults(loadConfiguration(resource));
 		}
 		config.options().copyDefaults(true);
 		try {
@@ -135,7 +140,7 @@ public class Localized {
 		final Object string = config.get(message.name());
 		if(string == null) {
 			recipient.sendMessage("ERROR_"+message);
-			new Exception("Unknown message:" + message + " name:" + message.name()).printStackTrace();
+			logger.log(SEVERE,"Unknown message:" + message + " name:" + message.name(), new Exception());
 		} else {
 			recipient.sendMessage(colorReplace.matcher(String.format(String.valueOf(string), args)).replaceAll("\u00A7"));
 		}

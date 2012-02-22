@@ -1,26 +1,44 @@
 package com.wolvereness.physicalshop;
 
 import static com.wolvereness.physicalshop.config.ConfigOptions.SERVER_SHOP;
-import static org.bukkit.Material.CHEST;
-import static org.bukkit.Material.SIGN_POST;
-import static org.bukkit.Material.WALL_SIGN;
+import static org.bukkit.Material.*;
 import static org.bukkit.block.BlockFace.*;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
+import com.google.common.collect.ImmutableList;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
 
 /**
  *
  */
 public class ShopHelpers {
-
+	/**
+	 * A list of block faces, North East South West, and self
+	 */
+	public static final List<BlockFace> CARDINAL_DIRECTIONS = ImmutableList.<BlockFace>builder()
+			.add(SELF)
+			.add(NORTH)
+			.add(SOUTH)
+			.add(EAST)
+			.add(WEST)
+			.build();
+	/**
+	 * A list of block faces including the cardinal directions and up, down
+	 */
+	private static final List<BlockFace> EXTENDED_DIRECTIONS = ImmutableList.<BlockFace>builder()
+			.add(DOWN)
+			.add(UP)
+			.addAll(CARDINAL_DIRECTIONS)
+			.build();
 	/**
 	 * Copy & Pasted from GNU GPL Licensed craftbook
 	 * com.sk89q.craftbook.util.SignUtil
@@ -87,20 +105,19 @@ public class ShopHelpers {
 	public static BlockFace getFace(final byte data) {
 		switch (data & 0x7) {
 		case 0x1:
-			return BlockFace.NORTH;
+			return NORTH;
 		case 0x2:
-			return BlockFace.SOUTH;
+			return SOUTH;
 		case 0x3:
-			return BlockFace.EAST;
+			return EAST;
 		case 0x4:
-			return BlockFace.WEST;
+			return WEST;
 		case 0x5:
 		case 0x6:
-			return BlockFace.DOWN;
+			return DOWN;
 		}
 		return null;
 	}
-
 	/**
 	 * Attempts to create a new shop object based on this block
 	 * @param block the block to consider
@@ -126,28 +143,37 @@ public class ShopHelpers {
 			return null;
 		}
 	}
-	private static List<Shop> getShops(final Block block, final PhysicalShop plugin) {
-		final ArrayList<Shop> shops = new ArrayList<Shop>();
-
-		final Block[] blocks = new Block[] { block,
-				block.getRelative(BlockFace.UP),
-				block.getRelative(BlockFace.DOWN),
-				block.getRelative(BlockFace.NORTH),
-				block.getRelative(BlockFace.EAST),
-				block.getRelative(BlockFace.SOUTH),
-				block.getRelative(BlockFace.WEST), };
-
-		for (final Block b : blocks) {
-			final Shop shop = ShopHelpers.getShop(b, plugin);
+	/**
+	 * Adds the shops associated with the specified block to the provided collection
+	 * @param block The block to check around
+	 * @param plugin The currently active PhysicalShop plugin
+	 * @param shops The collection to add to
+	 * @return the provided collection
+	 */
+	public static Collection<Shop> getShops(final Block block, final PhysicalShop plugin, final Collection<Shop> shops) {
+		Validate.notNull(shops, "Must provide a collection to add result to");
+		for (final BlockFace face : EXTENDED_DIRECTIONS) {
+			final Shop shop = getShop(block.getRelative(face), plugin);
 
 			if (shop != null && shop.isShopBlock(block)) {
 				shops.add(shop);
 			}
 		}
-
 		return shops;
 	}
-
+	/**
+	 * Adds the shops associated with the specified blocks to the provided collection
+	 * @param blocks The blocks to check around
+	 * @param plugin The currently active PhysicalShop plugin
+	 * @param shops The set to add to
+	 * @return the provided collection
+	 */
+	public static Collection<Shop> getShops(final Collection<Block> blocks, final PhysicalShop plugin, final Set<Shop> shops) {
+		for (final Block block : blocks) {
+			getShops(block, plugin, shops);
+		}
+		return shops;
+	}
 	/**
 	 * This assumes player does NOT have admin access
 	 * @param player Player to check for access
@@ -171,26 +197,6 @@ public class ShopHelpers {
 			&& shop.isSmartOwner(player, plugin);
 	}
     /**
-	 * Checks around block for shops, and checks it against player for ownership.<br>
-	 * Assumes block ARE protected.<br>
-	 * Assumes player is NOT admin.
-	 * @param block The block being destroyed
-	 * @param player The player destroying block, can be null (as in, no destroyer)
-	 * @param plugin The active PhysicalShop plugin
-	 * @return false if there are shops and player is null or not admin and not owner
-	 */
-	public static boolean isBlockDestroyable(final Block block, final Player player, final PhysicalShop plugin) {
-		final List<Shop> shops = ShopHelpers.getShops(block, plugin);
-		if(player == null && !shops.isEmpty()) return false;
-		for (final Shop shop : shops) {
-			if (!hasAccess(player.getName(), shop, plugin)) {
-				shop.getSign().update();
-				return false;
-			}
-		}
-		return true;
-	}
-	/**
 	 * This method checks a block for shop protection for other chests near or that chest
 	 * @param block Block to chest, intended to be a chest
 	 * @param player Player to cross-check for permissions
@@ -198,10 +204,33 @@ public class ShopHelpers {
 	 * @return true if the player should be blocked
 	 */
 	public static boolean isProtectedChestsAround(final Block block, final Player player, final PhysicalShop plugin) {
-		for (final Block checkBlock : new Block[] {block, block.getRelative(EAST), block.getRelative(WEST), block.getRelative(SOUTH), block.getRelative(NORTH)}) {
+		for (final BlockFace blockFace : CARDINAL_DIRECTIONS) {
+			final Block checkBlock = block.getRelative(blockFace);
 			if(checkBlock.getType() == CHEST && !hasAccess(player, checkBlock.getRelative(UP), plugin)) return true;
 		}
 		return false;
+	}
+	/**
+	 * Checks a list of shops against player for ownership.<br>
+	 * Assumes block ARE protected.
+	 * @param shops The shops being destroyed
+	 * @param player The player destroying block, can be null (as in, no destroyer)
+	 * @param plugin The active PhysicalShop plugin
+	 * @return false if there are shops and player is null or not admin and not owner
+	 */
+	public static boolean isShopsDestroyable(
+			final Collection<Shop> shops,
+			final Player player,
+			final PhysicalShop plugin) {
+		if(player == null && !shops.isEmpty()) return false;
+		if(plugin.getPermissionHandler().hasAdmin(player)) return true;
+		for (final Shop shop : shops) {
+			if (!hasAccess(player.getName(), shop, plugin)) {
+				shop.getSign().update();
+				return false;
+			}
+		}
+		return true;
 	}
 	/**
 	 * Cuts the name to 15 characters

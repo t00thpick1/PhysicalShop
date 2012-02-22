@@ -28,7 +28,7 @@ import com.wolvereness.physicalshop.exception.InvalidMaterialException;
 public class MaterialConfig {
 	private static final Pattern spaces = Pattern.compile("\\s+");
 	private final FileConfiguration config;
-	private final HashMap<Character, ShopMaterial> currencies = new HashMap<Character, ShopMaterial>();
+	private final HashMap<String, ShopMaterial> currencies = new HashMap<String, ShopMaterial>();
 	private final File file;
 	private final HashMap<String, ShopMaterial> identifiers = new HashMap<String, ShopMaterial>();
 	private final Pattern junkCharacters = Pattern.compile("[^A-Za-z0-9:_]");
@@ -40,9 +40,9 @@ public class MaterialConfig {
 	 */
 	public MaterialConfig(final PhysicalShop plugin) {
 		this.plugin = plugin;
-		final Set<String> currencySection = plugin.getConfig().getConfigurationSection(CURRENCIES).getKeys(false);
-		for(final String currency : currencySection) {
-			addCurrency(currency.charAt(0), String.valueOf(plugin.getConfig().getConfigurationSection(CURRENCIES).get(currency.substring(0, 1))));
+		final ConfigurationSection currencySection = plugin.getConfig().getConfigurationSection(CURRENCIES);
+		for(final String currency : currencySection.getKeys(false)) {
+			addCurrency(currency, String.valueOf(currencySection.get(currency.substring(0, 1))));
 		}
 		config = YamlConfiguration.loadConfiguration(file = new File(plugin.getDataFolder(), "Locales" + File.separatorChar +  "Items.yml"));
 		defaults();
@@ -57,9 +57,9 @@ public class MaterialConfig {
 	 * @param currencyIdentifier character to use as a reference
 	 * @param item name of the item to reference
 	 */
-	private void addCurrency(final char currencyIdentifier, final String item) {
+	private void addCurrency(final String currencyIdentifier, final String item) {
 		try {
-			currencies.put(Character.valueOf(currencyIdentifier), new ShopMaterial(junkCharacters.matcher(spaces.matcher(item).replaceAll("_")).replaceAll("").toUpperCase()));
+			currencies.put(currencyIdentifier, new ShopMaterial(junkCharacters.matcher(spaces.matcher(item).replaceAll("_")).replaceAll("").toUpperCase()));
 		} catch (final InvalidMaterialException e) {
 			plugin.getLogger().severe("Configuration error for shop currency:'"+currencyIdentifier+"' for item:"+item);
 		}
@@ -111,10 +111,8 @@ public class MaterialConfig {
 	 * @param currencyIdentifier The character the shop will be associated with.
 	 * @return ShopMaterial Associated with the currencyIdentifier, or null if not found
 	 */
-	public ShopMaterial getCurrency(final char currencyIdentifier) {
-		final Character searchCharacter = Character.valueOf(currencyIdentifier);
-		if(!currencies.containsKey(searchCharacter)) return null;
-		return currencies.get(searchCharacter);
+	public ShopMaterial getCurrency(final String currencyIdentifier) {
+		return currencies.get(currencyIdentifier);
 	}
 	/**
 	 * Retrieves the material based on a name.
@@ -170,7 +168,7 @@ public class MaterialConfig {
 	 */
 	public void verbose(final CommandSender sender) {
 		final StringBuilder builder = new StringBuilder();
-		for(final Map.Entry<Character, ShopMaterial> currency : currencies.entrySet()) {
+		for(final Map.Entry<String, ShopMaterial> currency : currencies.entrySet()) {
 			currency.getValue().toStringDefault(builder.append(currency.getKey()).append(" represents ")).append('\n');
 		}
 		for(final Entry<String, ShopMaterial> identifier : identifiers.entrySet()) {

@@ -63,8 +63,8 @@ public class PatternHandler {
 				amount = Integer.parseInt(matcher.group(amountIndex));
 				price = Integer.parseInt(matcher.group(priceIndex));
 				final String currency = matcher.group(currencyIndex);
-				if(currency == null) return null;
-				material = plugin.getMaterialConfig().getCurrency(currency.charAt(0));
+				if(currency == null || currency.length() == 0) return null;
+				material = plugin.getMaterialConfig().getCurrency(currency);
 			} catch (final IndexOutOfBoundsException e) {
 				plugin.getLogger().log(SEVERE, "There is an issue with the regex '" + pattern + '\'', e);
 				return null;
@@ -80,7 +80,7 @@ public class PatternHandler {
 			try {
 				amount = Integer.parseInt(splitLine[amountIndex]);
 				price = Integer.parseInt(splitLine[priceIndex]);
-				material = plugin.getMaterialConfig().getCurrency(splitLine[currencyIndex].charAt(0));
+				material = plugin.getMaterialConfig().getCurrency(splitLine[currencyIndex]);
 			} catch (final NumberFormatException e) {
 				return null;
 			}

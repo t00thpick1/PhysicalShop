@@ -51,6 +51,7 @@ public class Shop {
 		player.updateInventory();
 	}
 	private final Rate buyRate;
+	private int hash;
 	private final ShopMaterial material;
 	private final String ownerName;
 	private final Rate sellRate;
@@ -150,6 +151,27 @@ public class Shop {
 	public boolean canSell() {
 		return sellRate != null;
 	}
+	@Override
+	public boolean equals(final Object o) {
+		if(o == this) return true;
+		if(o == null || !o.getClass().isAssignableFrom(Shop.class)) return false;
+		final Shop that = (Shop) o;
+		if(that.sign == this.sign) {
+			if(this.sign != null) return true; // It's the same sign, so same shop
+			return // Signs are null
+				(this.buyRate == null
+					? that.buyRate == null
+					: this.buyRate.equals(that.buyRate))
+				&& (this.sellRate == null
+					? that.sellRate == null
+					: this.sellRate.equals(that.sellRate))
+				&& this.material.equals(that.material)
+				&& this.ownerName.equals(that.ownerName)
+				;
+		}
+		if(this.sign == null) return false; // this is null, that is not
+		return this.sign.equals(that.sign);
+	}
 	/**
 	 * @return the currency associated with buying
 	 */
@@ -216,6 +238,17 @@ public class Shop {
 	 */
 	public Sign getSign() {
 		return sign;
+	}
+	@Override
+	public int hashCode() {
+		if(hash == 0 && sign != null) {
+			final Block block = sign.getBlock();
+			hash = block.getWorld().hashCode();
+			hash = hash * 17 ^ block.getY();
+			hash = hash * 19 ^ block.getX();
+			hash = hash * 23 ^ block.getZ();
+		}
+		return hash;
 	}
 	/**
 	 * This method is called when a player right-clicks the sign. It considers the item in player's hand, and will act accordingly.
