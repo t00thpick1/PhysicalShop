@@ -42,7 +42,7 @@ public class MaterialConfig {
 		this.plugin = plugin;
 		final ConfigurationSection currencySection = plugin.getConfig().getConfigurationSection(CURRENCIES);
 		for(final String currency : currencySection.getKeys(false)) {
-			addCurrency(currency, String.valueOf(currencySection.get(currency.substring(0, 1))));
+			addCurrency(currency, currencySection.getString(currency));
 		}
 		config = YamlConfiguration.loadConfiguration(file = new File(plugin.getDataFolder(), "Locales" + File.separatorChar +  "Items.yml"));
 		defaults();
