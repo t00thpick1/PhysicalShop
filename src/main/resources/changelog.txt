@@ -1,3 +1,5 @@
+(2/22/12) - v9.0.10 - tweak
+- Fixed: Minor logic issue
 (2/21/12) - v9.0.9 - event
 - Added: Shop destruction event
 - Added: Shop interaction event

@@ -222,7 +222,8 @@ public class ShopHelpers {
 			final Collection<Shop> shops,
 			final Player player,
 			final PhysicalShop plugin) {
-		if(player == null && !shops.isEmpty()) return false;
+		if(shops.isEmpty()) return true;
+		if(player == null) return false;
 		if(plugin.getPermissionHandler().hasAdmin(player)) return true;
 		for (final Shop shop : shops) {
 			if (!hasAccess(player.getName(), shop, plugin)) {

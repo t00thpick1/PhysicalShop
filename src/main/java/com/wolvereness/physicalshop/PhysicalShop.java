@@ -43,7 +43,6 @@ import de.diddiz.LogBlock.LogBlock;
  *
  */
 public class PhysicalShop extends JavaPlugin implements Verbosable {
-
 	/**
 	 * Command to reload PhysicalShop
 	 */
@@ -122,7 +121,6 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public StandardConfig getPluginConfig() {
 		return configuration;
 	}
-
 	/**
 	 * Method used to hook into lockette
 	 * @param relative the block to consider
@@ -132,7 +130,6 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	public boolean locketteCheck(final Block relative, final Player player) {
 		return lockette != null && player.getName().equals(Lockette.getProtectedOwner(relative));
 	}
-
 	/**
 	 * This function checks for LWC, thus letting player create shop over
 	 * existing chest
