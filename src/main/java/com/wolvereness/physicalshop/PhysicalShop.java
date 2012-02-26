@@ -268,8 +268,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 				try {
 					in = new URL("http://cfapi.lukegb.com/dl/physicalshop/").openStream();
 					out = new FileOutputStream(destination);
-					final int inByte = in.read();
-					while(inByte != -1) {
+					for(int inByte = in.read(); inByte != -1; inByte = in.read()) {
 						out.write(inByte);
 					}
 					out.flush();

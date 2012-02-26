@@ -45,7 +45,7 @@ public class PatternHandler {
 		amountIndex = config.getInt(AMOUNT_INDEX);
 		currencyIndex = config.getInt(CURRENCY_INDEX);
 		priceIndex = config.getInt(PRICE_INDEX);
-		pattern = Pattern.compile(PATTERN);
+		pattern = Pattern.compile(config.getString(PATTERN));
 	}
 	/**
 	 * @param line The line from the shop sign

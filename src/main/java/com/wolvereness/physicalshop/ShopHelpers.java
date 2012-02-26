@@ -192,9 +192,10 @@ public class ShopHelpers {
 	 * @return true if the player has permission for the shop
 	 */
 	public static boolean hasAccess(final String player, final Shop shop, final PhysicalShop plugin) {
-		return shop != null
-			&& !plugin.getConfig().getString(SERVER_SHOP).equals(shop.getOwnerName())
-			&& shop.isSmartOwner(player, plugin);
+		return shop == null || (
+			!plugin.getConfig().getString(SERVER_SHOP).equals(shop.getOwnerName())
+			&& shop.isSmartOwner(player, plugin)
+			);
 	}
     /**
 	 * This method checks a block for shop protection for other chests near or that chest

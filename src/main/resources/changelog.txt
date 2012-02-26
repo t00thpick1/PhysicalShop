@@ -1,3 +1,7 @@
+(2/25/12) - v9.0.12 - critical bugfix
+- Fixed: infinite loop writting a massive file in update command
+- Fixed: no permission for shop chests
+- Fixed: Regex wasn't loading right
 (2/22/12) - v9.0.11 - bugfix
 - Fixed: Currency config didn't read properly
 (2/22/12) - v9.0.10 - tweak
