@@ -115,9 +115,11 @@ public class PhysicalShopListener implements Listener {
 	}
 	/**
 	 * Block BlockPhysicsEvent if it destroyed shop
+	 * @deprecated Doesn't quite work as intended
 	 * @param e Event
 	 */
-	@EventHandler
+	//@EventHandler
+	@Deprecated
 	public void onBlockBlockPhysics(final BlockPhysicsEvent e) {
 		onBlock_Destroyed(e, null, e.getBlock());
 	}
@@ -255,9 +257,8 @@ public class PhysicalShopListener implements Listener {
 			e.getShop().status(e.getPlayer(), plugin);
 		} else if (e.getAction() == RIGHT_CLICK_BLOCK) {
 			e.getShop().interact(e.getPlayer(), plugin);
+			e.setUseItemInHand(DENY);
 		}
-		e.setUseInteractedBlock(DENY);
-		e.setUseItemInHand(DENY);
 	}
 	/**
 	 * Sign Change event

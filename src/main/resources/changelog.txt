@@ -1,3 +1,6 @@
+(2/27/12) - v9.0.13 - bugfix
+- Fixed: players can again break shops
+- Fixed: Physics event no longer blocked
 (2/25/12) - v9.0.12 - critical bugfix
 - Fixed: infinite loop writting a massive file in update command
 - Fixed: no permission for shop chests
