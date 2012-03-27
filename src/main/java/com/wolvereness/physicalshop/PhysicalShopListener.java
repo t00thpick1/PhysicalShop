@@ -7,7 +7,6 @@ import static java.util.logging.Level.SEVERE;
 import static org.bukkit.Material.CHEST;
 import static org.bukkit.block.BlockFace.DOWN;
 import static org.bukkit.block.BlockFace.UP;
-import static org.bukkit.event.Event.Result.DENY;
 import static org.bukkit.event.block.Action.LEFT_CLICK_BLOCK;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
@@ -86,7 +85,9 @@ public class PhysicalShopListener implements Listener {
 			e.setCancelled(true);
 			return true;
 		}
-		plugin.getServer().getPluginManager().callEvent(new ShopDestructionEvent(e, shops, entity));
+		if (!shops.isEmpty()) {
+			plugin.getServer().getPluginManager().callEvent(new ShopDestructionEvent(e, shops, entity));
+		}
 		return e.isCancelled();
 	}
 	/**
@@ -257,7 +258,7 @@ public class PhysicalShopListener implements Listener {
 			e.getShop().status(e.getPlayer(), plugin);
 		} else if (e.getAction() == RIGHT_CLICK_BLOCK) {
 			e.getShop().interact(e.getPlayer(), plugin);
-			e.setUseItemInHand(DENY);
+			e.setCancelled(true);
 		}
 	}
 	/**

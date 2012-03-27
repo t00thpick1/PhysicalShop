@@ -24,21 +24,23 @@ public class ShopHelpers {
 	/**
 	 * A list of block faces, North East South West, and self
 	 */
-	public static final List<BlockFace> CARDINAL_DIRECTIONS = ImmutableList.<BlockFace>builder()
-			.add(SELF)
-			.add(NORTH)
-			.add(SOUTH)
-			.add(EAST)
-			.add(WEST)
-			.build();
+	public static final List<BlockFace> CARDINAL_DIRECTIONS = ImmutableList.of(
+			SELF,
+			NORTH,
+			SOUTH,
+			EAST,
+			WEST);
 	/**
 	 * A list of block faces including the cardinal directions and up, down
 	 */
-	private static final List<BlockFace> EXTENDED_DIRECTIONS = ImmutableList.<BlockFace>builder()
-			.add(DOWN)
-			.add(UP)
-			.addAll(CARDINAL_DIRECTIONS)
-			.build();
+	private static final List<BlockFace> EXTENDED_DIRECTIONS = ImmutableList.of(
+			SELF,
+			NORTH,
+			SOUTH,
+			EAST,
+			WEST,
+			DOWN,
+			UP);
 	/**
 	 * Copy & Pasted from GNU GPL Licensed craftbook
 	 * com.sk89q.craftbook.util.SignUtil

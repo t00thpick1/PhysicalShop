@@ -1,3 +1,7 @@
+(3/18/12) - v9.0.14 - exploit fix
+- Updated: dependencies for pom
+- Fixed: ShopDestructionEvent firing when no block was destroyed
+- Fixed: Placing block when selling to shop
 (2/27/12) - v9.0.13 - bugfix
 - Fixed: players can again break shops
 - Fixed: Physics event no longer blocked

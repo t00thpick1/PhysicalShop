@@ -24,7 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
 import com.griefcraft.lwc.LWCPlugin;
-import com.griefcraft.model.Protection;
 import com.wolvereness.physicalshop.config.Localized;
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.config.StandardConfig;
@@ -142,9 +141,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 */
 	public boolean lwcCheck(final Block block, final Player player) {
 		if (lwc == null) return false;
-		final Protection protection = lwc.getLWC().findProtection(block);
-		if (protection == null)	return false; // no protection here
-		return lwc.getLWC().canAdminProtection(player, protection);
+		return lwc.getLWC().canAdminProtection(player, block);
 	}
 	/**
 	 * This will capture the only command, /physicalshop. It will send version information to the sender, and it checks permissions and reloads config if there is proper permission to.
