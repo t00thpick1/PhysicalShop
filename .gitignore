@@ -1,5 +1,5 @@
-/target
-/lib
-/.project
-/.classpath
-/.settings
+/*
+!/src/*
+!/pom.xml
+!/README.md
+!/.gitignore
