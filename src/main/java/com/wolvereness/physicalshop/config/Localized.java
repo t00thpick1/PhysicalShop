@@ -89,7 +89,12 @@ public class Localized {
 		 * Shop item amount<br>
 		 * Shop item type
 		 */
-		STATUS_ONE_CURRENCY
+		STATUS_ONE_CURRENCY,
+		/**
+		 * Shop item amount<br>
+		 * Shop item type
+		 */
+		STATUS_ONE_MATERIAL
 	}
 	/**
 	 * Regex to find the & symbols to be replaced

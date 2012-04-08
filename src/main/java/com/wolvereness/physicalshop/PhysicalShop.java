@@ -17,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -214,14 +215,15 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			NameCollection.unregisterPlugin(this);
 		}
 		super.reloadConfig();
-		getConfig().options().copyDefaults(true);
-		if(getConfig().isSet(BUY_PATTERN)) {
-			getConfig().getConfigurationSection(BUY_SECTION).set(PATTERN, getConfig().getString(BUY_PATTERN));
-			getConfig().set(BUY_PATTERN, null);
+		final FileConfiguration getConfig = getConfig();
+		getConfig.options().copyDefaults(true);
+		if(getConfig.isSet(BUY_PATTERN)) {
+			getConfig.getConfigurationSection(BUY_SECTION).set(PATTERN, getConfig.getString(BUY_PATTERN));
+			getConfig.set(BUY_PATTERN, null);
 		}
-		if(getConfig().isSet(SELL_PATTERN)) {
-			getConfig().getConfigurationSection(SELL_SECTION).set(PATTERN, getConfig().getString(SELL_PATTERN));
-			getConfig().set(SELL_PATTERN, null);
+		if(getConfig.isSet(SELL_PATTERN)) {
+			getConfig.getConfigurationSection(SELL_SECTION).set(PATTERN, getConfig.getString(SELL_PATTERN));
+			getConfig.set(SELL_PATTERN, null);
 		}
 		configuration = new StandardConfig(this);
 		if(configuration.isExtendedNames()) {
@@ -229,7 +231,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		}
 		locale = new Localized(this);
 		materialConfig = new MaterialConfig(this);
-		if (getConfig().getBoolean(LOG_BLOCK)) {
+		if (getConfig.getBoolean(LOG_BLOCK)) {
 			final Plugin logblockPlugin = Bukkit.getServer().getPluginManager().getPlugin("LogBlock");
 			if (logblockPlugin == null || !(logblockPlugin instanceof LogBlock)) {
 				getLogger().warning("Failed to find LogBlock");
@@ -257,13 +259,14 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			return;
 		}
 		final File destination = getFileDestination(sender);
+		final String updateURL = getConfig().getString(UPDATE_URL);
 		if(destination == null) return;
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable(){
 			public void run() {
 				InputStream in = null;
 				FileOutputStream out = null;
 				try {
-					in = new URL("http://cfapi.lukegb.com/dl/physicalshop/").openStream();
+					in = new URL(updateURL).openStream();
 					out = new FileOutputStream(destination);
 					for(int inByte = in.read(); inByte != -1; inByte = in.read()) {
 						out.write(inByte);

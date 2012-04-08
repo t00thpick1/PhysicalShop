@@ -61,6 +61,14 @@ public class StandardConfig {
 		return plugin.getConfig().getBoolean(AUTO_FILL_NAME, true);
 	}
 	/**
+	 * Checks config to get the 'detailed-output' setting
+	 *
+	 * @return the config option for printing detailed chest output
+	 */
+	public boolean isDetailedOutput() {
+		return plugin.getConfig().getBoolean(DETAILED_OUTPUT, true);
+	}
+	/**
 	 * Checks config to see if 'protect-existing-chest' is set
 	 *
 	 * @return true

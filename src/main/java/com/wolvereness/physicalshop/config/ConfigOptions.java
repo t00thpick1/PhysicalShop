@@ -30,7 +30,10 @@ public class ConfigOptions {
 	 * Config option, "currency-index"
 	 */
 	public static String CURRENCY_INDEX = "currency-index";
-
+	/**
+	 * Config option, "detailed-output"
+	 */
+	public static String DETAILED_OUTPUT = "detailed-output";
 	/**
 	 * Config option, "extended-names"
 	 */
@@ -92,4 +95,8 @@ public class ConfigOptions {
 	 * Config option, "trigger-redstone"
 	 */
 	public static String TRIGGER_REDSTONE = "trigger-redstone";
+	/**
+	 * Config option, "update-url"
+	 */
+	public static String UPDATE_URL = "update-url";
 }

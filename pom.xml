@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wolvereness.physicalshop</groupId>
     <artifactId>PhysicalShop</artifactId>
-    <version>9.0.14</version>
+    <version>9.0.15</version>
     <name>PhysicalShop</name>
     <repositories>
         <repository>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.2.4-R1.0</version>
+            <version>1.2.5-R1.0</version>
         </dependency>
         <dependency>
 		    <groupId>com.griefcraft</groupId>

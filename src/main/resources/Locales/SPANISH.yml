@@ -18,6 +18,7 @@ NOT_ENOUGH_SHOP_ITEMS: Esta tienda no tiene suficiente %1$s
 NO_BUY: No puedes comprar a esta tienda.
 PLAYER_INVENTORY_FULL: Tu inventario está lleno.
 STATUS_ONE_CURRENCY: La tienda contiene %1$d %2$s y %3$d %4$s
+STATUS_ONE_MATERIAL: La tienda contiene %1$d %2$s
 CHEST_INVENTORY_FULL: La tienda está llena.
 CANT_USE: No te encuentras habilitado para utilizar tiendas.
 BUY_RATE: Puedes comprar %1$d %2$s por %3$d %4$s

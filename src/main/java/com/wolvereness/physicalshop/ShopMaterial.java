@@ -37,7 +37,6 @@ public class ShopMaterial {
 	}
 	private final short durability;
 	private final Map<Enchantment, Integer> enchantment;
-	private int hash = 0;
 	private final Material material;
 	/**
 	 * @param itemStack items to derive this material from
@@ -130,8 +129,7 @@ public class ShopMaterial {
 	}
 	@Override
 	public int hashCode() {
-		if(hash == 0) return hash = new Integer(material.getId() << 16 + durability).hashCode();
-		return hash;
+		return material.ordinal() + durability * 31;
 	}
 
 	@SuppressWarnings("javadoc")
@@ -150,6 +148,7 @@ public class ShopMaterial {
 			case COAL:
 				data = new Coal(CoalType.valueOf(s));
 				break;
+			case WOOD:
 			case LOG:
 				data = new Tree(TreeSpecies.valueOf(s));
 				break;
@@ -202,6 +201,7 @@ public class ShopMaterial {
 		case COAL:
 			sb.append(new Coal(material, (byte) durability).getType().toString());
 			return sb;
+		case WOOD:
 		case LOG:
 			sb.append(new Tree(material, (byte) durability).getSpecies().toString()).append('_');
 			break;

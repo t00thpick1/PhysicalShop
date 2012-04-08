@@ -18,6 +18,7 @@ NOT_ENOUGH_SHOP_ITEMS: The shop doesn't have enough %1$s
 NO_BUY: You can't buy at this shop
 PLAYER_INVENTORY_FULL: Your inventory is full
 STATUS_ONE_CURRENCY: The shop contains %1$d %2$s and %3$d %4$s
+STATUS_ONE_MATERIAL: The shop contains %1$d %2$s
 CHEST_INVENTORY_FULL: The shop is full
 CANT_USE: You are not allowed to use shops
 BUY_RATE: You can buy %1$d %2$s for %3$d %4$s
