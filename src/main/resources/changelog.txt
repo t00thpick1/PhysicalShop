@@ -1,3 +1,5 @@
+(4/8/12) - v9.0.16 - local fix
+- Fixed: POLISH.yml had missing info
 (3/29/12) - v9.0.15 - fixed load
 - Fixed: Softdepend wasn't defined properly.
 - Updated: dependency for pom, now compiling against RB

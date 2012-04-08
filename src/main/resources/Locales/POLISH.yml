@@ -17,7 +17,7 @@ CANT_DESTROY: Nie mozesz usunac tego sklepu
 NOT_ENOUGH_SHOP_ITEMS: Ten sklep nie posiada wystarczajacej ilosci %1$s
 NO_BUY: Nie mozesz kupowac w tym sklepie
 PLAYER_INVENTORY_FULL: Nie masz wolnego miejsca w inwentarzu
-STATUS_ONE_CURRENCY: Sklep zawiera %1$d %2$s
+STATUS_ONE_CURRENCY: Sklep zawiera %1$d %2$s i %3$d %4$s
 STATUS_ONE_MATERIAL: Sklep zawiera %1$d %2$s
 CHEST_INVENTORY_FULL: Sklep jest pelny
 CANT_USE: Nie masz pozwolenia na uzywanie sklepow
