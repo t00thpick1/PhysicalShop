@@ -9,6 +9,10 @@
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public</url>
         </repository>
+        <repository>
+        	<id>vault-repo</id>
+        	<url>http://ci.milkbowl.net/plugin/repository/everything/</url>
+        </repository>
     </repositories>
     <build>
 		<resources>
@@ -55,11 +59,9 @@
 		    <systemPath>${project.basedir}/lib/LWC-4.1.1.jar</systemPath>
 		</dependency>
         <dependency>
-		    <groupId>net.milkbowl</groupId>
+		    <groupId>net.milkbowl.vault</groupId>
 		    <artifactId>Vault</artifactId>
-		    <version>1.2.12</version>
-		    <scope>system</scope>
-		    <systemPath>${project.basedir}/lib/Vault-1.2.12.jar</systemPath>
+		    <version>1.2.15-SNAPSHOT</version>
 		</dependency>
         <dependency>
 		    <groupId>de.diddiz</groupId>
