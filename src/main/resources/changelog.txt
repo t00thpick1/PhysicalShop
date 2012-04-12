@@ -1,4 +1,6 @@
-(4/8/12) - v9.0.16 - local fix
+(4/11/12) - v9.0.17 - output fix
+- Fixed: Output in reduced output is now more specific
+(4/8/12) - v9.0.16 - locale fix
 - Fixed: POLISH.yml had missing info
 (3/29/12) - v9.0.15 - fixed load
 - Fixed: Softdepend wasn't defined properly.

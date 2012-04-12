@@ -128,23 +128,32 @@ public class ChestShop extends Shop {
 	}
 	@Override
 	public void status(final Player p, final PhysicalShop plugin) {
-		if (plugin.getPluginConfig().isDetailedOutput()) {
-			if (getSellCurrency() == null) {
+		if (!plugin.getPluginConfig().isDetailedOutput()) {
+			if (!canSell()) {
 				plugin.getLocale().sendMessage(
 					p,
 					STATUS_ONE_MATERIAL,
 					getShopItems(),
 					getMaterial().toString(plugin.getMaterialConfig())
 					);
-			} else {
+			} else if (!canBuy()) {
 				plugin.getLocale().sendMessage(
 					p,
 					STATUS_ONE_MATERIAL,
 					getShopSellCapital(),
 					getSellCurrency().toString(plugin.getMaterialConfig())
 					);
+			} else {
+				plugin.getLocale().sendMessage(
+					p,
+					STATUS_ONE_CURRENCY,
+					getShopSellCapital(),
+					getSellCurrency().toString(plugin.getMaterialConfig()),
+					getShopItems(),
+					getMaterial().toString(plugin.getMaterialConfig())
+					);
 			}
-		} else if (getBuyCurrency() == null) {
+		} else if (!canBuy()) {
 			plugin.getLocale().sendMessage(
 				p,
 				STATUS_ONE_CURRENCY,
@@ -153,7 +162,7 @@ public class ChestShop extends Shop {
 				getShopItems(),
 				getMaterial().toString(plugin.getMaterialConfig())
 				);
-		} else if (getSellCurrency() == null || getSellCurrency().equals(getBuyCurrency())) {
+		} else if (!canSell() || getSellCurrency().equals(getBuyCurrency())) {
 			plugin.getLocale().sendMessage(
 				p,
 				STATUS_ONE_CURRENCY,

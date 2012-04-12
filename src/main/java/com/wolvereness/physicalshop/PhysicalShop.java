@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -232,7 +231,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		locale = new Localized(this);
 		materialConfig = new MaterialConfig(this);
 		if (getConfig.getBoolean(LOG_BLOCK)) {
-			final Plugin logblockPlugin = Bukkit.getServer().getPluginManager().getPlugin("LogBlock");
+			final Plugin logblockPlugin = getServer().getPluginManager().getPlugin("LogBlock");
 			if (logblockPlugin == null || !(logblockPlugin instanceof LogBlock)) {
 				getLogger().warning("Failed to find LogBlock");
 				consumer = null;
