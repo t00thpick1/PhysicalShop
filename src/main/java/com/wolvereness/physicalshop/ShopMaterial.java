@@ -13,6 +13,7 @@ import org.bukkit.material.Dye;
 import org.bukkit.material.Leaves;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.MonsterEggs;
+import org.bukkit.material.Sandstone;
 import org.bukkit.material.SmoothBrick;
 import org.bukkit.material.Step;
 import org.bukkit.material.Tree;
@@ -28,7 +29,10 @@ public class ShopMaterial {
 		final StringBuilder sb = new StringBuilder();
 
 		for (final String word : object.toString().split("_")) {
-			sb.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(' ');
+			if (word.length() == 0) {
+				continue;
+			}
+			sb.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1).toLowerCase()).append(' ');
 		}
 
 		sb.deleteCharAt(sb.length() - 1);
@@ -94,7 +98,6 @@ public class ShopMaterial {
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) return true;
-		if (obj == null) return false;
 		if (!(obj instanceof ShopMaterial)) return false;
 		final ShopMaterial other = (ShopMaterial) obj;
 		if (durability != other.durability) return false;
@@ -172,6 +175,8 @@ public class ShopMaterial {
 			case SMOOTH_BRICK:
 				data = new SmoothBrick(Material.valueOf(s));
 				break;
+			case SANDSTONE:
+				data = new Sandstone(Material.valueOf(s));
 			}
 		} catch (final IllegalArgumentException e) {
 		}
@@ -224,6 +229,8 @@ public class ShopMaterial {
 		case SMOOTH_BRICK:
 			sb.append(new SmoothBrick(material, (byte) durability).getMaterial().toString()).append('_');
 			break;
+		case SANDSTONE:
+			sb.append(new Sandstone(material, (byte) durability).getType().toString()).append('_');
 		}
 		return sb.append(material.toString());
 	}
