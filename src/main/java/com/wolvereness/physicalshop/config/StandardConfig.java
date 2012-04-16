@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import org.bukkit.plugin.Plugin;
 
+import com.wolvereness.physicalshop.showcase.PlayerHandler;
+
 /**
  * @author Wolfe
  * Licensed under GNU GPL v3
@@ -107,5 +109,21 @@ public class StandardConfig {
 	 */
 	public boolean isProtectExplode() {
 		return plugin.getConfig().getBoolean(PROTECT_EXPLODE, true);
+	}
+	/**
+	 * Checks config to get the 'showcase-mode' setting.
+	 *
+	 * @return the config option for showcase mode
+	 */
+	public boolean isShowcaseEnabled() {
+		return plugin.getConfig().getBoolean(SHOWCASE_MODE, true) && isValidVersion();
+	}
+	/**
+	 * Checks config (for override option) or references the compiled against server version
+	 * @return if the ignore version option is active, or the server version matches the supported showcase version
+	 */
+	public boolean isValidVersion() {
+		return plugin.getConfig().getBoolean(IGNORE_VERSION, false)
+			|| plugin.getServer().getVersion().contains(PlayerHandler.MC_VERSION);
 	}
 }

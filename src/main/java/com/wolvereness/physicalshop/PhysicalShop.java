@@ -27,6 +27,7 @@ import com.griefcraft.lwc.LWCPlugin;
 import com.wolvereness.physicalshop.config.Localized;
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.config.StandardConfig;
+import com.wolvereness.physicalshop.showcase.ShowcaseListener;
 import com.wolvereness.util.CommandHandler;
 import com.wolvereness.util.CommandHandler.Reload;
 import com.wolvereness.util.CommandHandler.ShortCommand;
@@ -67,6 +68,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	private LWCPlugin lwc = null;
 	private MaterialConfig materialConfig;
 	private Permissions permissions;
+	private final ShowcaseListener showcaseListener = new ShowcaseListener(this);
 	private final Set<String> updateSenders = new HashSet<String>();
 	private File getFileDestination(final CommandSender sender) {
 		if(!getFile().getName().equals("PhysicalShop.jar")) {
@@ -228,6 +230,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		if(configuration.isExtendedNames()) {
 			NameCollection.registerPlugin(this);
 		}
+		showcaseListener.setStatus(configuration.isShowcaseEnabled());
 		locale = new Localized(this);
 		materialConfig = new MaterialConfig(this);
 		if (getConfig.getBoolean(LOG_BLOCK)) {

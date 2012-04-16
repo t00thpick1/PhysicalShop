@@ -39,6 +39,10 @@ public class ConfigOptions {
 	 */
 	public static String EXTENDED_NAMES = "extended-names";
 	/**
+	 * Config option, "ignore-mc-version"
+	 */
+	public static String IGNORE_VERSION = "ignore-mc-version";
+	/**
 	 * Config option, "language"
 	 */
 	public static String LANGUAGE = "language";
@@ -91,6 +95,10 @@ public class ConfigOptions {
 	 * Config option, "server-shop"
 	 */
 	public static String SERVER_SHOP = "server-shop";
+	/**
+	 * Config option, "showcase-mode"
+	 */
+	public static String SHOWCASE_MODE = "showcase-mode";
 	/**
 	 * Config option, "trigger-redstone"
 	 */

@@ -75,7 +75,6 @@ public class PhysicalShopListener implements Listener {
 	 * @return true if event is cancelled
 	 */
 	public boolean onBlock_Destroyed(final Cancellable e, final Entity entity, final Collection<Block> blocks) {
-		if (e.isCancelled()) return true;
 		final Collection<Shop> shops = getShops(blocks, plugin, new HashSet<Shop>());
 		final Player p = entity instanceof Player ? (Player) entity : null;
 		if (plugin.getPluginConfig().isProtectBreak() && !isShopsDestroyable(shops, p , plugin)) {
@@ -94,7 +93,7 @@ public class PhysicalShopListener implements Listener {
 	 * Block Break event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBlockBreak(final BlockBreakEvent e) {
 		onBlock_Destroyed(e, e.getPlayer(), e.getBlock());
 	}
@@ -102,7 +101,7 @@ public class PhysicalShopListener implements Listener {
 	 * Block BlockBurnEvent if it destroyed shop
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBlockBurn(final BlockBurnEvent e) {
 		onBlock_Destroyed(e, null, e.getBlock());
 	}
@@ -110,7 +109,7 @@ public class PhysicalShopListener implements Listener {
 	 * Block LeavesDecayEvent if it destroyed shop
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBlockFade(final BlockFadeEvent e) {
 		onBlock_Destroyed(e, null, e.getBlock());
 	}
@@ -119,7 +118,7 @@ public class PhysicalShopListener implements Listener {
 	 * @deprecated Doesn't quite work as intended
 	 * @param e Event
 	 */
-	//@EventHandler
+	//@EventHandler(ignoreCancelled = true)
 	@Deprecated
 	public void onBlockBlockPhysics(final BlockPhysicsEvent e) {
 		onBlock_Destroyed(e, null, e.getBlock());
@@ -129,7 +128,7 @@ public class PhysicalShopListener implements Listener {
 	 * a store sign is on.
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBlockPistonExtend(final BlockPistonExtendEvent e) {
 		onBlock_Destroyed(e, null, e.getBlocks());
 	}
@@ -138,7 +137,7 @@ public class PhysicalShopListener implements Listener {
 	 * a store sign is on.
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBlockPistonRetract(final BlockPistonRetractEvent e) {
 		final BlockFace direction = e.getDirection();
 
@@ -157,7 +156,7 @@ public class PhysicalShopListener implements Listener {
 	 * Prevents Endermen from breaking stores, etc.
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockEntityChangeBlock(final EntityChangeBlockEvent e) {
 		onBlock_Destroyed(e, e.getEntity(), e.getBlock());
 	}
@@ -165,7 +164,7 @@ public class PhysicalShopListener implements Listener {
 	 * Entity Explode event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockEntityExplode(final EntityExplodeEvent e) {
 		onBlock_Destroyed(e, e.getEntity(), e.blockList());
 	}
@@ -173,7 +172,7 @@ public class PhysicalShopListener implements Listener {
 	 * Block LeavesDecayEvent if it destroyed shop
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockLeavesDecay(final LeavesDecayEvent e) {
 		onBlock_Destroyed(e, null, e.getBlock());
 	}
@@ -181,9 +180,9 @@ public class PhysicalShopListener implements Listener {
 	 * Block Place event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(final BlockPlaceEvent e) {
-		if (e.isCancelled() || e.getBlock().getType() != CHEST) return;
+		if (e.getBlock().getType() != CHEST) return;
 		if (!plugin.getPluginConfig().isProtectChestAccess() || plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
 
 		final Block block = e.getBlock();
@@ -203,9 +202,9 @@ public class PhysicalShopListener implements Listener {
 	 * This listens for new shop creation and checks to see if the player has permission to build over a chest
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onNewShopSign(final ShopSignCreationEvent e) {
-		if(e.isCancelled() || !e.isCheckExistingChest()) return;
+		if(!e.isCheckExistingChest()) return;
 		final Block b = e.getCause().getBlock().getRelative(DOWN);
 		if(
 				plugin.lwcCheck(b, e.getCause().getPlayer())
@@ -217,10 +216,8 @@ public class PhysicalShopListener implements Listener {
 	 * Player Interact event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent e) {
-		if (e.isCancelled()) return;
-
 		final Block block = e.getClickedBlock();
 		if (
 				plugin.getPluginConfig().isProtectChestAccess()
@@ -251,9 +248,8 @@ public class PhysicalShopListener implements Listener {
 	 * Shop Interact event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onShopInteract(final ShopInteractEvent e) {
-		if(e.isCancelled()) return;
 		if (e.getAction() == LEFT_CLICK_BLOCK) {
 			e.getShop().status(e.getPlayer(), plugin);
 		} else if (e.getAction() == RIGHT_CLICK_BLOCK) {
@@ -265,10 +261,8 @@ public class PhysicalShopListener implements Listener {
 	 * Sign Change event
 	 * @param e Event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onSignChange(final SignChangeEvent e) {
-		if (e.isCancelled()) return;
-
 		try {
 			new Shop(e.getLines(), plugin);
 		} catch (final InvalidSignOwnerException ex) {
