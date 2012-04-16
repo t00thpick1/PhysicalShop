@@ -27,7 +27,7 @@ public class PlayerHandler {
 	/**
 	 * The MC version that it was compiled against.
 	 */
-	public static final String MC_VERSION = "(MC 1.2.5)";
+	public static final String MC_VERSION = "(MC: 1.2.5)";
 
 	/**
 	 * This creates a destroy packet for reuse (and also gets an entity id)
