@@ -1,5 +1,7 @@
 package com.wolvereness.util;
 
+import java.util.logging.Level;
+
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -29,8 +31,16 @@ public class PermissionHandler {
 	public PermissionHandler(final Plugin plugin) {
 		this.plugin = plugin;
 		final org.bukkit.plugin.Plugin test = plugin.getServer().getPluginManager().getPlugin("Permissions");
+
 		if(test != null) {
-			permissions = ((com.nijikokun.bukkit.Permissions.Permissions) test).getHandler();
+			com.nijiko.permissions.PermissionHandler permissions;
+			try {
+				permissions = ((com.nijikokun.bukkit.Permissions.Permissions) test).getHandler();
+			} catch (final Throwable t) {
+				plugin.getLogger().log(Level.SEVERE, "Error handling Permissions (yeti)", t);
+				permissions = null;
+			}
+			this.permissions = permissions;
 		} else {
 			permissions = null;
 		}

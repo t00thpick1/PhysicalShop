@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -233,22 +234,27 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		showcaseListener.setStatus(configuration.isShowcaseEnabled());
 		locale = new Localized(this);
 		materialConfig = new MaterialConfig(this);
-		if (getConfig.getBoolean(LOG_BLOCK)) {
-			final Plugin logblockPlugin = getServer().getPluginManager().getPlugin("LogBlock");
-			if (logblockPlugin == null || !(logblockPlugin instanceof LogBlock)) {
-				getLogger().warning("Failed to find LogBlock");
-				consumer = null;
-			} else {
-				consumer = ((LogBlock) logblockPlugin).getConsumer();
-				if (consumer == null) {
-					getLogger().warning("Error getting LogBlock consumer");
+		try {
+			if (getConfig.getBoolean(LOG_BLOCK)) {
+				final Plugin logblockPlugin = getServer().getPluginManager().getPlugin("LogBlock");
+				if (logblockPlugin == null || !(logblockPlugin instanceof LogBlock)) {
+					getLogger().warning("Failed to find LogBlock");
+					consumer = null;
 				} else {
-					getLogger().info("Sucessfully hooked into LogBlock");
+					consumer = ((LogBlock) logblockPlugin).getConsumer();
+					if (consumer == null) {
+						getLogger().warning("Error getting LogBlock consumer");
+					} else {
+						getLogger().info("Sucessfully hooked into LogBlock");
+					}
 				}
+			} else {
+				consumer = null;
+				getLogger().info("Did not hook into LogBlock");
 			}
-		} else {
+		} catch (final Throwable t) {
 			consumer = null;
-			getLogger().info("Did not hook into LogBlock");
+			getLogger().log(Level.SEVERE, "Error handling LogBlock", t);
 		}
 	}
 	/**

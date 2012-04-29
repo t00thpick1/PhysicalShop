@@ -45,8 +45,8 @@ import com.wolvereness.util.NameCollection;
 import com.wolvereness.util.NameCollection.OutOfEntriesException;
 
 /**
- * @author Wolfe
  * Licensed under GNU GPL v3
+ * @author Wolfe
  */
 public class PhysicalShopListener implements Listener {
 	private final PhysicalShop plugin;
