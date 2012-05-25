@@ -372,9 +372,9 @@ public class Shop {
 			player,
 			SELL,
 			amount,
-			material,
+			material.toString(plugin.getMaterialConfig()),
 			price,
-			getSellCurrency()
+			getSellCurrency().toString(plugin.getMaterialConfig())
 			);
 
 		queryLogBlock(player, true, plugin);
