@@ -1,3 +1,6 @@
+(5/25/12) - v9.1.2 - bugfix
+- Added: German locale, thanks reptile311
+- Fixed: Output when selling
 (4/29/12) - v9.1.1 - cleanup
 - Fixed: Fix possible issues with missing classes and name overriding
 (4/16/12) - v9.1.0 - showcase
