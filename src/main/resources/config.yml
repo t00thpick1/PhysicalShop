@@ -24,3 +24,4 @@ extended-names: false
 detailed-output: true
 update-url: http://cfapi.lukegb.com/dl/physicalshop/
 showcase-mode: true
+shop-block-blacklist: [ BURNING_FURNACE, FURNACE ]

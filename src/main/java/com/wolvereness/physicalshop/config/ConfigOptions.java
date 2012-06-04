@@ -96,6 +96,10 @@ public class ConfigOptions {
 	 */
 	public static String SERVER_SHOP = "server-shop";
 	/**
+	 * Config option, "shop-block-blacklist"
+	 */
+	public static String SHOP_BLOCK_BLACKLIST = "shop-block-blacklist";
+	/**
 	 * Config option, "showcase-mode"
 	 */
 	public static String SHOWCASE_MODE = "showcase-mode";

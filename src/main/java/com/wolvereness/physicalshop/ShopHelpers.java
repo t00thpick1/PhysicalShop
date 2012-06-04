@@ -11,8 +11,10 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 
 import com.google.common.collect.ImmutableList;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
@@ -132,15 +134,42 @@ public class ShopHelpers {
 		if (block.getType() != SIGN_POST && block.getType() != WALL_SIGN) return null;
 
 		final Sign sign = (Sign) block.getState();
-
 		if (sign == null) return null;
 
 		final String ownerName = Shop.getOwnerName(sign.getLines());
 
 		try {
-			if (block.getRelative(DOWN).getType() == CHEST) return new ChestShop(sign, plugin);
+			final BlockState state = block.getRelative(DOWN).getState();
+			if (	state instanceof InventoryHolder
+					&& !plugin.getPluginConfig().isBlacklistedShopType(state.getType())
+					) return new ChestShop(sign, plugin, (InventoryHolder) state);
 			else if (ownerName.equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) return new Shop(sign, plugin);
 			else return null;
+		} catch (final InvalidSignException e) {
+			return null;
+		}
+	}
+	/**
+	 * Attempts to create a chest shop based on the blockstate (being an {@link org.bukkit.inventory.InventoryHolder})
+	 * @param chest The blockstate of an inventory holder
+	 * @param plugin The currently active PhysicalShop plugin
+	 * @return null
+	 *  if the given chest block state is not an inventory holder,
+	 *  if the sign above it does not exist,
+	 *  if the sign above it is not valid,
+	 *  otherwise a newly created ChestShop
+	 */
+	public static ChestShop getShop(final BlockState chest, final PhysicalShop plugin) {
+		if (chest == null || !(chest instanceof InventoryHolder)) return null;
+
+		final Block signBlock = chest.getBlock().getRelative(UP);
+		if (signBlock.getType() != SIGN_POST && signBlock.getType() != WALL_SIGN) return null;
+
+		final Sign sign = (Sign) signBlock.getState();
+		if (sign == null) return null;
+
+		try {
+			return new ChestShop(sign, plugin, (InventoryHolder) chest);
 		} catch (final InvalidSignException e) {
 			return null;
 		}
@@ -200,7 +229,8 @@ public class ShopHelpers {
 			);
 	}
     /**
-	 * This method checks a block for shop protection for other chests near or that chest
+	 * This method checks a block for shop protection for other chests near or that chest<br>
+	 * This will ONLY check for chests!
 	 * @param block Block to chest, intended to be a chest
 	 * @param player Player to cross-check for permissions
 	 * @param plugin currently active PhysicalShop to consider

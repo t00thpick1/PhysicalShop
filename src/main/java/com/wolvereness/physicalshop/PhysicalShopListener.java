@@ -17,6 +17,7 @@ import java.util.HashSet;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -34,6 +35,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 import com.wolvereness.physicalshop.events.ShopCreationEvent;
 import com.wolvereness.physicalshop.events.ShopDestructionEvent;
@@ -182,18 +184,23 @@ public class PhysicalShopListener implements Listener {
 	 */
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(final BlockPlaceEvent e) {
-		if (e.getBlock().getType() != CHEST) return;
-		if (!plugin.getPluginConfig().isProtectChestAccess() || plugin.getPermissionHandler().hasAdmin(e.getPlayer())) return;
+		final Block block;
+		final BlockState state;
+		if (	!plugin.getPluginConfig().isProtectChestAccess()
+				|| plugin.getPermissionHandler().hasAdmin(e.getPlayer())
+				|| !((state = (block = e.getBlock()).getState()) instanceof InventoryHolder)
+				) return;
 
-		final Block block = e.getBlock();
-
-		if(isProtectedChestsAround(block, e.getPlayer(), plugin)) {
+		if (	block.getType() == CHEST
+				? isProtectedChestsAround(block, e.getPlayer(), plugin)
+				: !hasAccess(e.getPlayer(), block.getRelative(UP), plugin)
+				) {
 			plugin.getLocale().sendMessage(e.getPlayer(), CANT_PLACE_CHEST);
 			e.setCancelled(true);
 			return;
 		}
 
-		final Shop placedShop = getShop(block.getRelative(UP), plugin);
+		final Shop placedShop = getShop(state, plugin);
 		if(placedShop != null) {
 			plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, placedShop));
 		}
@@ -219,13 +226,15 @@ public class PhysicalShopListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent e) {
 		final Block block = e.getClickedBlock();
-		if (
-				plugin.getPluginConfig().isProtectChestAccess()
+		if (	plugin.getPluginConfig().isProtectChestAccess()
 				&& e.getAction() == RIGHT_CLICK_BLOCK
-				&& block.getType() == CHEST
+				&& block.getState() instanceof InventoryHolder
 				&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())
 				) {
-			if(isProtectedChestsAround(block, e.getPlayer(), plugin)) {
+			if (	block.getType() == CHEST
+					? isProtectedChestsAround(block, e.getPlayer(), plugin)
+					: !hasAccess(e.getPlayer(), block.getRelative(UP), plugin)
+					) {
 				plugin.getLocale().sendMessage(e.getPlayer(), CANT_USE_CHEST);
 				e.setCancelled(true);
 				return;
@@ -300,16 +309,25 @@ public class PhysicalShopListener implements Listener {
 			}
 			plugin.getServer().getPluginManager().callEvent(event.setCheckExistingChest(plugin.getPluginConfig().isExistingChestProtected()));
 		}
-		if (
-				!e.isCancelled()
-				&& event.isCheckExistingChest()
-				&& e.getBlock().getRelative(DOWN).getType() == CHEST
-				&& !plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
-			plugin.getLocale().sendMessage(e.getPlayer(), EXISTING_CHEST);
-			e.setCancelled(true);
-			return;
+		if (e.isCancelled()) return;
+		final boolean hasChest;
+		if (event.isCheckExistingChest()) {
+			final BlockState state = e.getBlock().getRelative(DOWN).getState();
+			if (	state instanceof InventoryHolder
+					&& !plugin.getPluginConfig().isBlacklistedShopType(state.getType())) {
+				if (!plugin.getPermissionHandler().hasAdmin(e.getPlayer())) {
+					plugin.getLocale().sendMessage(e.getPlayer(), EXISTING_CHEST);
+					e.setCancelled(true);
+					return;
+				}
+				hasChest = true;
+			} else {
+				hasChest = false;
+			}
+		} else {
+			hasChest = e.getBlock().getRelative(DOWN).getState() instanceof InventoryHolder;
 		}
-		if(!e.isCancelled() && e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
+		if(hasChest || e.getLine(3).equalsIgnoreCase(plugin.getConfig().getString(SERVER_SHOP))) {
 			try {
 				plugin.getServer().getPluginManager().callEvent(new ShopCreationEvent(e, new Shop(e.getLines(), plugin)));
 			} catch (final InvalidSignException ex) {

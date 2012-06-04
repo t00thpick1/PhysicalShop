@@ -2,10 +2,13 @@ package com.wolvereness.physicalshop.config;
 
 import static com.wolvereness.physicalshop.config.ConfigOptions.*;
 
+import java.util.EnumSet;
 import java.util.regex.Pattern;
 
+import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 
+import com.google.common.collect.ImmutableList;
 import com.wolvereness.physicalshop.showcase.PlayerHandler;
 
 /**
@@ -13,6 +16,7 @@ import com.wolvereness.physicalshop.showcase.PlayerHandler;
  * Licensed under GNU GPL v3
  */
 public class StandardConfig {
+	private final EnumSet<Material> blacklist = EnumSet.noneOf(Material.class);
 	private final PatternHandler buyPattern;
 	private final Pattern materialPattern;
 	private final Plugin plugin;
@@ -29,6 +33,23 @@ public class StandardConfig {
 		if(!plugin.getConfig().isConfigurationSection(CURRENCIES)) {
 			plugin.getConfig().createSection(CURRENCIES).set("g", "Gold Ingot");
 		}
+		for (final Object matObj : plugin.getConfig().getList(SHOP_BLOCK_BLACKLIST, ImmutableList.of())) {
+			if (matObj == null) {
+				continue;
+			}
+			final Material mat;
+			if (matObj instanceof Number) {
+				mat = Material.getMaterial(((Number) matObj).intValue());
+			} else {
+				mat = Material.getMaterial(matObj.toString());
+			}
+			if (mat == null) {
+				plugin.getLogger().warning(SHOP_BLOCK_BLACKLIST + " contains an invalid entry: " + matObj);
+			} else {
+				blacklist.add(mat);
+			}
+		}
+
 	}
 	/**
 	 * Pattern for 'buy-from-shop' (second line on signs).
@@ -61,6 +82,14 @@ public class StandardConfig {
 	 */
 	public boolean isAutoFillName() {
 		return plugin.getConfig().getBoolean(AUTO_FILL_NAME, true);
+	}
+	/**
+	 * Checks the specified material to see if it is not allowed as a shop block
+	 * @param type The material to check
+	 * @return true if the material is not allowed
+	 */
+	public boolean isBlacklistedShopType(final Material type) {
+		return blacklist.contains(type);
 	}
 	/**
 	 * Checks config to get the 'detailed-output' setting

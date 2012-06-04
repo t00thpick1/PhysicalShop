@@ -2,12 +2,13 @@ package com.wolvereness.physicalshop;
 
 import static com.wolvereness.physicalshop.config.Localized.Message.*;
 
-import org.bukkit.Material;
+import org.apache.commons.lang.Validate;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 
 import com.wolvereness.physicalshop.exception.InvalidExchangeException;
 import com.wolvereness.physicalshop.exception.InvalidSignException;
@@ -16,21 +17,40 @@ import com.wolvereness.physicalshop.exception.InvalidSignException;
  *
  */
 public class ChestShop extends Shop {
-	private final Chest chest;
+	private final InventoryHolder chest;
 	/**
 	 * Creates a Shop with a chest
 	 * @param sign sign to consider
 	 * @param plugin The active PhysicalShop plugin
-	 * @throws InvalidSignException thrown if sign is not over a chest or sign is invalid
+	 * @throws InvalidSignException thrown if sign is not over a block with inventory or sign is invalid
 	 */
 	public ChestShop(final Sign sign, final PhysicalShop plugin) throws InvalidSignException {
 		super(sign, plugin);
 
 		final Block chestBlock = sign.getBlock().getRelative(BlockFace.DOWN);
 
-		if (chestBlock.getType() != Material.CHEST) throw new InvalidSignException();
+		final BlockState chest = chestBlock.getState();
+		if (	!(chest instanceof InventoryHolder)
+				|| plugin.getPluginConfig().isBlacklistedShopType(chest.getType())
+				) throw new InvalidSignException();
+		this.chest = (InventoryHolder) chest;
+	}
+	/**
+	 * Creates a Shop with the specified InventoryHolder
+	 * @param sign sign to consider
+	 * @param plugin The active PhysicalShop plugin
+	 * @param inventory The inventory to use
+	 * @throws InvalidSignException thrown if the sign is invalid
+	 */
+	public ChestShop(final Sign sign, final PhysicalShop plugin, final InventoryHolder inventory) throws InvalidSignException {
+		super(sign, plugin);
 
-		chest = (Chest) chestBlock.getState();
+		Validate.notNull(inventory, "Inventory cannot be null");
+
+		if (	inventory instanceof BlockState
+				&& plugin.getPluginConfig().isBlacklistedShopType(((BlockState) inventory).getType())
+				) throw new InvalidSignException();
+		this.chest = inventory;
 	}
 	@Override
 	protected boolean buy(final Player player, final PhysicalShop plugin) {
@@ -89,11 +109,8 @@ public class ChestShop extends Shop {
 	public boolean isShopBlock(final Block block) {
 		if (super.isShopBlock(block)) return true;
 
-		final Block down = getSign().getBlock().getRelative(BlockFace.DOWN);
-
-		if ((down.getType() == Material.CHEST) && (down.equals(block))) return true;
-
-		return false;
+		return 	chest instanceof BlockState
+				&& ((BlockState) chest).getBlock().equals(block);
 	}
 	@Override
 	public boolean sell(final Player player, final PhysicalShop plugin) {
@@ -101,12 +118,14 @@ public class ChestShop extends Shop {
 			plugin.getLocale().sendMessage(player, NO_SELL);
 			return false;
 		}
-		final ShopItemStack[] items = InventoryHelpers.getItems(chest
-				.getInventory());
+		final ShopItemStack[] items = InventoryHelpers.getItems(chest.getInventory());
 
 		try {
-			InventoryHelpers.exchange(chest.getInventory(), getMaterial()
-					.getStack(getSellRate().getAmount()), getSellCurrency().getStack(getSellRate().getPrice()));
+			InventoryHelpers.exchange(
+				chest.getInventory(),
+				getMaterial().getStack(getSellRate().getAmount()),
+				getSellCurrency().getStack(getSellRate().getPrice())
+				);
 		} catch (final InvalidExchangeException e) {
 			switch (e.getType()) {
 			case ADD:
