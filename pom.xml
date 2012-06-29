@@ -4,6 +4,10 @@
     <artifactId>PhysicalShop</artifactId>
     <version>9.2.0-SNAPSHOT</version>
     <name>PhysicalShop</name>
+	<url>http://dev.bukkit.org/server-mods/physicalshop/</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
     <repositories>
         <repository>
             <id>bukkit-repo</id>
