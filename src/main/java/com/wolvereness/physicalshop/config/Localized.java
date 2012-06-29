@@ -7,12 +7,16 @@ import static org.bukkit.configuration.file.YamlConfiguration.loadConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+
+import com.google.common.io.ByteStreams;
 
 /**
  * @author Wolfe
@@ -114,17 +118,29 @@ public class Localized {
 		} else {
 			config = new YamlConfiguration();
 		}
-		final InputStream resource = plugin.getResource("Locales/" + language + ".yml");
+		InputStream resource = plugin.getResource("Locales/" + language + ".yml");
+		final YamlConfiguration defaults = new YamlConfiguration();
 		if(resource == null) {
-			config.addDefaults(loadConfiguration(plugin.getResource("Locales/ENGLISH.yml")));
-		} else {
-			config.addDefaults(loadConfiguration(resource));
+			resource = plugin.getResource("Locales/ENGLISH.yml");
 		}
+		try {
+			defaults.loadFromString(new String(ByteStreams.toByteArray(resource), "UTF-8"));
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		} catch (final InvalidConfigurationException e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				resource.close();
+			} catch (final IOException e) {
+			}
+		}
+		config.addDefaults(defaults);
 		config.options().copyDefaults(true);
 		try {
 			config.save(file);
 		} catch (final IOException e) {
-			e.printStackTrace();
+			plugin.getLogger().log(Level.WARNING, "Failed to save locale file " + file, e);
 		}
 	}
 	/**

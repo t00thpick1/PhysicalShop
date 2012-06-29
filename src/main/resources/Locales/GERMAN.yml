@@ -1,26 +1,26 @@
-NOT_ENOUGH_PLAYER_ITEMS: Du hast nicht genug %1$s.
-SELL: Du hast %1$d %2$s für %3$d %4$s verkauft.
-SELL_RATE: Du kannst %1$d %2$s für %3$d %4$s verkaufen.
+ï»¿NOT_ENOUGH_PLAYER_ITEMS: Du hast nicht genug %1$s.
+SELL: Du hast %1$d %2$s fÃ¼r %3$d %4$s verkauft.
+SELL_RATE: Du kannst %1$d %2$s fÃ¼r %3$d %4$s verkaufen.
 CANT_PLACE_CHEST: Du hast keine Erlaubnis diese Truhe zu plazieren.
 DEPOSIT: Du hast %1$d %2$s und %3$d %4$s abgelegt.
 WITHDRAW: Du hast %1$d %2$s und %3$d %4$s entnommen.
-STATUS: Der Laden enthält %1$d %2$s, %3$d %4$s, und %5$d %6$s.
+STATUS: Der Laden enthÃ¤lt %1$d %2$s, %3$d %4$s, und %5$d %6$s.
 CANT_USE_CHEST: Du hast keine Erlaubnis diese Laden-Truhe zu benutzen.
-CANT_BUILD: Du hast keine Erlaubnis Läden zu bauen.
+CANT_BUILD: Du hast keine Erlaubnis LÃ¤den zu bauen.
 NO_SELL: Du kannst in diesem Laden nichts verkaufen.
 NOT_ENOUGH_PLAYER_MONEY: Du hast nicht genug %1$s.
-CANT_BUILD_SERVER: Du hast keine Erlaubnis Server-Läden zu bauen.
-EXISTING_CHEST: Du kannst keinen Laden über einer existierenden Truhe bauen.
+CANT_BUILD_SERVER: Du hast keine Erlaubnis Server-LÃ¤den zu bauen.
+EXISTING_CHEST: Du kannst keinen Laden Ã¼ber einer existierenden Truhe bauen.
 NOT_ENOUGH_SHOP_MONEY: Der Laden hat nicht genug %1$s.
-BUY: Du hast %1$d %2$s für %3$d %4$s gekauft.
+BUY: Du hast %1$d %2$s fÃ¼r %3$d %4$s gekauft.
 CANT_DESTROY: Du hast keine Erlaubnis diesen Laden zu entfernen.
 NOT_ENOUGH_SHOP_ITEMS: Der Laden hat nicht genug %1$s.
 NO_BUY: Du kannst in diesem Laden nicht einkaufen.
 PLAYER_INVENTORY_FULL: Dein Inventar ist voll.
-STATUS_ONE_CURRENCY: Der Laden enthält %1$d %2$s und %3$d %4$s.
-STATUS_ONE_MATERIAL: Der Laden enthält %1$d %2$s.
+STATUS_ONE_CURRENCY: Der Laden enthÃ¤lt %1$d %2$s und %3$d %4$s.
+STATUS_ONE_MATERIAL: Der Laden enthÃ¤lt %1$d %2$s.
 CHEST_INVENTORY_FULL: Der Laden ist voll.
-CANT_USE: Du hast keine Erlaubnis Läden zu benutzen.
-BUY_RATE: Du kannst %1$d %2$s für %3$d %4$s kaufen.
+CANT_USE: Du hast keine Erlaubnis LÃ¤den zu benutzen.
+BUY_RATE: Du kannst %1$d %2$s fÃ¼r %3$d %4$s kaufen.
 CANT_RELOAD_CONFIG: Du hast keine Erlaubnis die Konfiguration neu zu laden.
 CONFIG_RELOADED: Die Konfiguration wurde neu geladen.

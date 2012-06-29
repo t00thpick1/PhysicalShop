@@ -1,4 +1,4 @@
-NOT_ENOUGH_PLAYER_ITEMS: You don't have enough %1$s
+﻿NOT_ENOUGH_PLAYER_ITEMS: You don't have enough %1$s
 SELL: You sold %1$d %2$s for %3$d %4$s
 SELL_RATE: You can sell %1$d %2$s for %3$d %4$s
 CANT_PLACE_CHEST: You are not allowed to place this chest

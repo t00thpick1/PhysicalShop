@@ -1,4 +1,4 @@
-NOT_ENOUGH_PLAYER_ITEMS: No tienes suficiente %1$s
+ÔªøNOT_ENOUGH_PLAYER_ITEMS: No tienes suficiente %1$s
 SELL: Vendiste %1$d %2$s por %3$d %4$s
 SELL_RATE: Puedes vender %1$d %2$s por %3$d %4$s
 CANT_PLACE_CHEST: No te encuentras habilitado para poner el cofre.
@@ -16,11 +16,11 @@ BUY: Has comprado %1$d %2$s por %3$d %4$s
 CANT_DESTROY: No te encuentras habilitado para destruir esta tienda.
 NOT_ENOUGH_SHOP_ITEMS: Esta tienda no tiene suficiente %1$s
 NO_BUY: No puedes comprar a esta tienda.
-PLAYER_INVENTORY_FULL: Tu inventario est· lleno.
+PLAYER_INVENTORY_FULL: Tu inventario est√° lleno.
 STATUS_ONE_CURRENCY: La tienda contiene %1$d %2$s y %3$d %4$s
 STATUS_ONE_MATERIAL: La tienda contiene %1$d %2$s
-CHEST_INVENTORY_FULL: La tienda est· llena.
+CHEST_INVENTORY_FULL: La tienda est√° llena.
 CANT_USE: No te encuentras habilitado para utilizar tiendas.
 BUY_RATE: Puedes comprar %1$d %2$s por %3$d %4$s
-CANT_RELOAD_CONFIG: No te encuentras habilitado para reiniciar la configuraciÛn.
-CONFIG_RELOADED: La configuraciÛn se ha reiniciado.
+CANT_RELOAD_CONFIG: No te encuentras habilitado para reiniciar la configuraci√≥n.
+CONFIG_RELOADED: La configuraci√≥n se ha reiniciado.
