@@ -15,7 +15,7 @@
         </repository>
         <repository>
         	<id>vault-repo</id>
-        	<url>http://ci.milkbowl.net/plugin/repository/everything/</url>
+        	<url>http://ci.herocraftonline.com/plugin/repository/everything/</url>
         </repository>
     </repositories>
     <build>
@@ -51,6 +51,18 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>10.0.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
             <version>1.2.5-R3.0</version>
@@ -65,7 +77,7 @@
         <dependency>
 		    <groupId>net.milkbowl.vault</groupId>
 		    <artifactId>Vault</artifactId>
-		    <version>1.2.15-SNAPSHOT</version>
+		    <version>1.2.17-SNAPSHOT</version>
 		</dependency>
         <dependency>
 		    <groupId>de.diddiz</groupId>
