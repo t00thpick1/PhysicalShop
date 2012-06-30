@@ -210,19 +210,32 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 					update(sender);
 					return true;
 				}});
+
 			//Hooks
-			Plugin temp = getServer().getPluginManager().getPlugin("LWC");
-			if(temp != null && temp instanceof LWCPlugin) {
-				lwc = (LWCPlugin) temp;
+			try {
+				final Plugin temp = getServer().getPluginManager().getPlugin("LWC");
+				if(temp != null && temp instanceof LWCPlugin) {
+					lwc = (LWCPlugin) temp;
+				}
+			} catch (final Throwable er) {
 			}
-			temp = getServer().getPluginManager().getPlugin("Lockette");
-			if(temp != null && temp instanceof Lockette) {
-				lockette = temp;
+
+			try {
+				final Plugin temp = getServer().getPluginManager().getPlugin("Lockette");
+				if(temp != null && temp instanceof Lockette) {
+					lockette = temp;
+				}
+			} catch (final Throwable er) {
 			}
-			temp = getServer().getPluginManager().getPlugin("Deadbolt");
-			if(temp != null && temp instanceof DeadboltPlugin) {
-				deadbolt = temp;
+
+			try {
+				final Plugin temp = getServer().getPluginManager().getPlugin("Deadbolt");
+				if(temp != null && temp instanceof DeadboltPlugin) {
+					deadbolt = temp;
+				}
+			} catch (final Throwable er) {
 			}
+
 			getLogger().info(getDescription().getFullName() + " enabled.");
 		} catch (final Throwable t) {
 			getLogger().log(SEVERE, getDescription().getFullName() + " failed to enable", t);
