@@ -87,13 +87,6 @@
 		    <systemPath>${project.basedir}/lib/LogBlock-1.50.jar</systemPath>
 		</dependency>
         <dependency>
-		    <groupId>com.nijiko</groupId>
-		    <artifactId>Permissions</artifactId>
-		    <version>3.1.6</version>
-		    <scope>system</scope>
-		    <systemPath>${project.basedir}/lib/Permissions-3.1.6.jar</systemPath>
-		</dependency>
-        <dependency>
 		    <groupId>org.yi</groupId>
 		    <artifactId>Lockette</artifactId>
 		    <version>1.6</version>
