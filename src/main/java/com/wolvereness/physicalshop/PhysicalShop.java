@@ -24,6 +24,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yi.acru.bukkit.Lockette.Lockette;
 
+import com.daemitus.deadbolt.Deadbolt;
+import com.daemitus.deadbolt.DeadboltPlugin;
+import com.daemitus.deadbolt.Deadbolted;
 import com.griefcraft.lwc.LWCPlugin;
 import com.wolvereness.physicalshop.config.Localized;
 import com.wolvereness.physicalshop.config.MaterialConfig;
@@ -63,14 +66,28 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	private final HashMap<String,CommandHandler> commands = new HashMap<String,CommandHandler>();
 	private StandardConfig configuration;
 	private Consumer consumer = null;
+	private Plugin deadbolt = null;
 	private final PhysicalShopListener listener = new PhysicalShopListener(this);
 	private Localized locale;
-	private Lockette lockette = null;
+	private Plugin lockette = null;
 	private LWCPlugin lwc = null;
 	private MaterialConfig materialConfig;
 	private Permissions permissions;
 	private final ShowcaseListener showcaseListener = new ShowcaseListener(this);
 	private final Set<String> updateSenders = new HashSet<String>();
+	/**
+	 * This function checks for Deadbolt, thus letting player create shop over
+	 * existing chest
+	 *
+	 * @param block Block representing chest
+	 * @param player Player creating sign
+	 * @return Returns true if and only if Deadbolt is enabled AND block protected AND player is owner of chest
+	 */
+	public boolean deadboltCheck(final Block block, final Player player) {
+		if (deadbolt == null || !deadbolt.isEnabled()) return false;
+		final Deadbolted lock = Deadbolt.get(block);
+		return lock.isProtected() && lock.isOwner(player);
+	}
 	private File getFileDestination(final CommandSender sender) {
 		if(!getFile().getName().equals("PhysicalShop.jar")) {
 			sender.sendMessage("The jar is not named PhysicalShop.jar, and will be renamed with .old extension");
@@ -130,7 +147,8 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 * @return true if and only if lockette is enabled and player owns said block
 	 */
 	public boolean locketteCheck(final Block relative, final Player player) {
-		return lockette != null && player.getName().equals(Lockette.getProtectedOwner(relative));
+		if (lockette == null || !lockette.isEnabled()) return false;
+		return Lockette.isOwner(relative, player.getName());
 	}
 	/**
 	 * This function checks for LWC, thus letting player create shop over
@@ -143,7 +161,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	 * @return Returns true if LWC enabled and protection exists and player is admin of chest
 	 */
 	public boolean lwcCheck(final Block block, final Player player) {
-		if (lwc == null) return false;
+		if (lwc == null || !lwc.isEnabled()) return false;
 		return lwc.getLWC().canAdminProtection(player, block);
 	}
 	/**
@@ -199,7 +217,11 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			}
 			temp = getServer().getPluginManager().getPlugin("Lockette");
 			if(temp != null && temp instanceof Lockette) {
-				lockette = (Lockette) temp;
+				lockette = temp;
+			}
+			temp = getServer().getPluginManager().getPlugin("Deadbolt");
+			if(temp != null && temp instanceof DeadboltPlugin) {
+				deadbolt = temp;
 			}
 			getLogger().info(getDescription().getFullName() + " enabled.");
 		} catch (final Throwable t) {

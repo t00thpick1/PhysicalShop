@@ -211,11 +211,11 @@ public class PhysicalShopListener implements Listener {
 	 */
 	@EventHandler(ignoreCancelled = true)
 	public void onNewShopSign(final ShopSignCreationEvent e) {
-		if(!e.isCheckExistingChest()) return;
+		if (!e.isCheckExistingChest()) return;
 		final Block b = e.getCause().getBlock().getRelative(DOWN);
-		if(
-				plugin.lwcCheck(b, e.getCause().getPlayer())
-				|| plugin.locketteCheck(b, e.getCause().getPlayer())) {
+		if (	plugin.lwcCheck(b, e.getCause().getPlayer())
+				|| plugin.locketteCheck(b, e.getCause().getPlayer())
+				|| plugin.deadboltCheck(b, e.getCause().getPlayer())) {
 			e.setCheckExistingChest(false);
 		}
 	}

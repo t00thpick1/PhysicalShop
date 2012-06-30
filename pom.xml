@@ -100,5 +100,12 @@
 		    <scope>system</scope>
 		    <systemPath>${project.basedir}/lib/Lockette-1.6.jar</systemPath>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>com.daemitus</groupId>
+			<artifactId>Deadbolt</artifactId>
+			<version>2.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/Deadbolt-2.2.jar</systemPath>
+		</dependency>
+	</dependencies>
 </project>
