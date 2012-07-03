@@ -2,7 +2,7 @@ name: PhysicalShop
 main: com.wolvereness.physicalshop.PhysicalShop
 version: ${project.version}
 url: ${project.url}
-softdepend: [LogBlock, LWC, Lockette]
+softdepend: [LogBlock, LWC, Lockette, Deadbolt]
 url: http://dev.bukkit.org/server-mods/physicalshop/
 commands:
    physicalshop:
