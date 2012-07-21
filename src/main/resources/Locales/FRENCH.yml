@@ -1,0 +1,26 @@
+NOT_ENOUGH_PLAYER_ITEMS: Vous n'avez pas suffisamment de %1$s
+SELL: Vous avez vendu %1$d %2$s pour %3$d %4$s
+SELL_RATE: Vous pouvez vendre %1$d %2$s pour %3$d %4$s
+CANT_PLACE_CHEST: Vous n'êtes pas autorisé à placer ce coffre.
+DEPOSIT: Vous avez déposé %1$d %2$s et %3$d %4$s
+WITHDRAW: Vous avez retiré %1$d %2$s et %3$d %4$s
+STATUS: La boutique contient %1$d %2$s, %3$d %4$s, et %5$d %6$s
+CANT_USE_CHEST: Vous n'êtes pas autorisé à utiliser le coffre de cette boutique.
+CANT_BUILD: Vous n'êtes pas autorisé à construire des boutiques.
+NO_SELL: Vous ne pouvez pas vendre à cette boutique.
+NOT_ENOUGH_PLAYER_MONEY: Vous n'avez pas suffisamment de %1$s
+CANT_BUILD_SERVER: Vous n'êtes pas autorisé à créer une boutique serveur.
+EXISTING_CHEST: Vous ne pouvez construire une boutique au dessus d'un coffre existant.
+NOT_ENOUGH_SHOP_MONEY: La boutique n'a pas suffisamment de %1$s
+BUY: Vous avez acheté %1$d %2$s pour %3$d %4$s
+CANT_DESTROY: Vous n'êtes pas autorisé à détruire cette boutique.
+NOT_ENOUGH_SHOP_ITEMS: La boutique n'a pas suffisamment de %1$s
+NO_BUY: Vous ne pouvez pas acheter dans cette boutique.
+PLAYER_INVENTORY_FULL: Votre inventaire est plein.
+STATUS_ONE_CURRENCY: La boutique contient %1$d %2$s et %3$d %4$s
+STATUS_ONE_MATERIAL: La boutique contient %1$d %2$s
+CHEST_INVENTORY_FULL: Le coffre de la boutique est plein.
+CANT_USE: Vous n'êtes pas autorisé à utiliser les boutiques.
+BUY_RATE: Vous pouvez acheter %1$d %2$s pour %3$d %4$s
+CANT_RELOAD_CONFIG: Vous n'êtes pas autorisé à recharger la configuration.
+CONFIG_RELOADED: La configuration a été rechargée.
