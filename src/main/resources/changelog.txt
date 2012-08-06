@@ -1,3 +1,15 @@
+(8/5/12) - v9.2.0 - feature beta
+- Added: 1.3.1 Showcase and redstone support
+- Added: More blocktypes can be shops. This means dispensers will work as a shop.
+- Added: Blacklist for shop block types. This means you can say a furnace is not a shop.
+- Added: Deadbolt support similar to LWC and Lockette
+- Added: Support for randomized messages in locales. Simply treat it as a list.
+- Added: French translation. Thanks Algent!
+- Fixed: New color / style types. This is now forward compatible.
+- Fixed: Possible issues with plugin dependencies.
+- Fixed: Localization files will now properly load from the jar. Changing the Language is now safe!
+- Removed: Old Niji-Permissions support
+- Removed: 1.2.5 Showcase and redstone support
 (5/25/12) - v9.1.2 - bugfix
 - Added: German locale, thanks reptile311
 - Fixed: Output when selling
