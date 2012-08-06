@@ -214,7 +214,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 			//Hooks
 			try {
 				final Plugin temp = getServer().getPluginManager().getPlugin("LWC");
-				if(temp != null && temp instanceof LWCPlugin) {
+				if(temp instanceof LWCPlugin) {
 					lwc = (LWCPlugin) temp;
 				}
 			} catch (final Throwable er) {
@@ -222,7 +222,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 
 			try {
 				final Plugin temp = getServer().getPluginManager().getPlugin("Lockette");
-				if(temp != null && temp instanceof Lockette) {
+				if(temp instanceof Lockette) {
 					lockette = temp;
 				}
 			} catch (final Throwable er) {
@@ -230,7 +230,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 
 			try {
 				final Plugin temp = getServer().getPluginManager().getPlugin("Deadbolt");
-				if(temp != null && temp instanceof DeadboltPlugin) {
+				if(temp instanceof DeadboltPlugin) {
 					deadbolt = temp;
 				}
 			} catch (final Throwable er) {
