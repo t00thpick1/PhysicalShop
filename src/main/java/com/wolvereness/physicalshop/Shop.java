@@ -441,7 +441,11 @@ public class Shop {
 				activatedBlock.getX(),
 				activatedBlock.getY(),
 				activatedBlock.getZ(),
-				null
+				null,
+				0,
+				Float.NaN,
+				Float.NaN,
+				Float.NaN
 				);
 		// This is Notch code for toggling something.
 		// This means I wont need to toggle the button back myself!

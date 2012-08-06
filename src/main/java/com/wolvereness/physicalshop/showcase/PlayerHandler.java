@@ -27,7 +27,7 @@ public class PlayerHandler {
 	/**
 	 * The MC version that it was compiled against.
 	 */
-	public static final String MC_VERSION = "(MC: 1.2.5)";
+	public static final String MC_VERSION = "(MC: 1.3.1)";
 
 	/**
 	 * This creates a destroy packet for reuse (and also gets an entity id)
@@ -48,7 +48,7 @@ public class PlayerHandler {
 	 * @return the fresh EntityId to use
 	 */
 	public static int getEntityId(final Object packet) {
-		return ((Packet29DestroyEntity) packet).a;
+		return ((Packet29DestroyEntity) packet).a[0];
 	}
 
 	private static void putData(final byte[] store, final int index, final byte b) {
