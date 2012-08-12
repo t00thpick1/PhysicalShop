@@ -28,6 +28,8 @@ import com.daemitus.deadbolt.Deadbolt;
 import com.daemitus.deadbolt.DeadboltPlugin;
 import com.daemitus.deadbolt.Deadbolted;
 import com.griefcraft.lwc.LWCPlugin;
+import com.bekvon.bukkit.residence.Residence;
+import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.wolvereness.physicalshop.config.Localized;
 import com.wolvereness.physicalshop.config.MaterialConfig;
 import com.wolvereness.physicalshop.config.StandardConfig;
@@ -71,6 +73,7 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 	private Localized locale;
 	private Plugin lockette = null;
 	private LWCPlugin lwc = null;
+	private Plugin residence = null;
 	private MaterialConfig materialConfig;
 	private Permissions permissions;
 	private final ShowcaseListener showcaseListener = new ShowcaseListener(this);
@@ -150,6 +153,27 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 		if (lockette == null || !lockette.isEnabled()) return false;
 		return Lockette.isOwner(relative, player.getName());
 	}
+	/**
+	 * This function checks for Residence thus letting player create shop over
+	 * existing chest
+	 *
+	 * @param block
+	 *            Block representing chest
+	 * @param player
+	 *            Player creating sign
+	 * @return Returns true if Residence is enabled, the chest is in a residence and the player has permissions to that chest
+	 */
+	public boolean ResidenceCheck(final Block block, final Player player) {
+		if (residence == null || !residence.isEnabled()) return false;
+			ClaimedResidence res = Residence.getResidenceManager().getByLoc(block.getLocation());
+			if(res!=null){
+				if(res.getPermissions().playerHas(player.getName(), "container", false)||Residence.isResAdminOn(player)){
+					return true;
+				}
+			}
+		return false;
+	}
+		 
 	/**
 	 * This function checks for LWC, thus letting player create shop over
 	 * existing chest
@@ -232,6 +256,14 @@ public class PhysicalShop extends JavaPlugin implements Verbosable {
 				final Plugin temp = getServer().getPluginManager().getPlugin("Deadbolt");
 				if(temp instanceof DeadboltPlugin) {
 					deadbolt = temp;
+				}
+			} catch (final Throwable er) {
+			}
+			
+			try {
+				final Plugin temp = getServer().getPluginManager().getPlugin("Residence");
+				if(temp instanceof Residence) {
+					residence = temp;
 				}
 			} catch (final Throwable er) {
 			}
